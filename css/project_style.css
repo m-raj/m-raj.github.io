@@ -2,7 +2,7 @@
 	/* Add shadows to create the "card" effect */
 	box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 	transition: 0.3s;
-	border-radius: 10%;
+	border-radius: 5%;
 	width: 90%;
 	margin-bottom: 20px;
 }
@@ -19,9 +19,13 @@
 }
 
 img {
-	width: 100%;
-	border-radius: 10%;
+	width: 90%;
+	height: 100%;
+	margin-top: 5px;
+	border-radius: 5%;
 	margin-bottom: 0px;
+	margin-right: 10px;
+	margin-left: 20px;
 }
 
 .tags li{
