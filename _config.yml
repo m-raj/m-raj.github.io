@@ -19,14 +19,13 @@
 # in the templates via {{ site.myvariable }}.
 
 title: Home
-description: This is the personal website of Mayank Raj, senior undergraduate at Indian Institute of Technology Madras.
 # Build settings
 theme: minima
 plugins:
   - jekyll-feed
 author:
   name: Mayank Raj
-  email: mayank227raj@gmail.com
+  email: mraj@caltech.edu
   github: m-raj
   kaggle: go-mayank
   linkedin: mayank-raj-a9a27613a
