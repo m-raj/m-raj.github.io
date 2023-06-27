@@ -1,0 +1,15 @@
+.row {
+    display: flex;
+  }
+  
+  .column {
+    padding: 10px;
+  }
+  
+  .left {
+    flex: 35%;
+  }
+
+  .right {
+    flex: 65%;
+  }

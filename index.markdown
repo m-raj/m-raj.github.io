@@ -4,7 +4,7 @@
 
 layout: home
 ---
-I am Mayank Raj. I am PhD student in the department of Applied + Computational Mathematics at Caltech. I am co-advised by Professor Kaushik Bhattacharya and Professor Andrew Stuart. The first year of my graduate study is funded by the Bell Family Graduate Fellowship. 
+I am Mayank Raj. I am a PhD student in the department of Applied + Computational Mathematics at Caltech. I am co-advised by [Professor Kaushik Bhattacharya](https://mechmat.caltech.edu/) and [Professor Andrew Stuart](http://stuart.caltech.edu/). The first year of my graduate study is funded by the Bell Family Graduate Fellowship. 
 
 While I have a varied interests, I am currently working on multiscale modelling of materials where the material properties at fine length and time scales are homogenized to get macrosopic response to load. 
 
