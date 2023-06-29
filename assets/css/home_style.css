@@ -1,4 +1,5 @@
-.row {
+@media screen and (min-width: 800px)
+{.row {
     display: flex;
   }
   
@@ -12,4 +13,4 @@
 
   .right {
     flex: 65%;
-  }
+  }}
