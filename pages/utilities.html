@@ -36,6 +36,8 @@ params = {'font.family': 'serif',
           'ytick.major.size': 6,
           'legend.frameon': False,
           'lines.markersize': 4.0,
-          'axes.formatter.use_mathtext': True}
+          'axes.formatter.use_mathtext': True,
+          'text.latex.preamble' : r'\usepackage{amsmath}',
+          'text.usetex': True}
 plt.rcParams.update(params)
 {% endhighlight %}
