@@ -1,0 +1,13 @@
+# Talks and posters, newest first. Rendered by _includes/list_talks.html.
+# Put slide/poster files in assets/talks/ and link them as
+# "/assets/talks/<file>.pdf". Every field except title, event and year is optional.
+#
+# - title: "Talk title"
+#   event: "Conference or seminar name"
+#   location: "City, Country"
+#   date: "July 2026"
+#   year: 2026
+#   type: Talk            # Talk, Invited talk, Poster, ...
+#   slides: "/assets/talks/my-talk.pdf"
+#   video: "https://www.youtube.com/watch?v=..."
+#   project: "/projects/neural-constitutive-laws/"

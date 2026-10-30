@@ -14,3 +14,22 @@
   .right {
     flex: 65%;
   }}
+
+.profile-image {
+  width: 250px;
+  height: 250px;
+  overflow: hidden;
+  border-radius: 50%;
+  position: relative;
+}
+
+.profile-image img {
+  /* Crops the 1600x1066 photo to a head-and-shoulders square
+     (source x 547-977, y 630-1060), centered in the circle. */
+  width: 372%;
+  height: auto;
+  max-width: none;
+  position: absolute;
+  left: -127.2%;
+  top: -146.5%;
+}
