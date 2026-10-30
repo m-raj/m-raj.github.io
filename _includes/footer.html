@@ -1,22 +1,22 @@
+{%- assign a = site.author -%}
+<link rel="stylesheet" href="{{ '/assets/css/footer.css' | relative_url }}">
 <footer class="site-footer h-card">
   <data class="u-url" href="{{ "/" | relative_url }}"></data>
-
   <div class="wrapper">
-
-    <div class="footer-col-wrapper">
-      <div class="footer-col">
-      {%- if site.author %}
-        <p style="text-align:left;">
-          {% if site.author.name -%}
-            {{ site.author.name | escape }}
-          {% endif -%}    
-          &nbsp; {% if site.author.email -%}
-	  <span style="float:right;">
-            <a class="u-email" href="mailto:{{ site.author.email }}">{{ site.author.email }}</a> &nbsp;  {%- include social.html -%}
-	    {%- endif %} </span>
-        </p>
+    <ul class="footer-row">
+      <li class="p-name footer-name">{{ a.name | escape }}</li>
+      {%- if a.email %}
+      <li><a class="u-email" href="mailto:{{ a.email }}"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>{{ a.email }}</a></li>
       {%- endif %}
-      </div>
-    </div>
+      {%- if a.github %}
+      <li><a href="https://github.com/{{ a.github }}" rel="me"><svg class="svg-icon"><use xlink:href="{{ '/assets/minima-social-icons.svg#github' | relative_url }}"></use></svg>GitHub</a></li>
+      {%- endif %}
+      {%- if a.linkedin %}
+      <li><a href="https://www.linkedin.com/in/{{ a.linkedin }}" rel="me"><svg class="svg-icon"><use xlink:href="{{ '/assets/minima-social-icons.svg#linkedin' | relative_url }}"></use></svg>LinkedIn</a></li>
+      {%- endif %}
+      {%- if a.google_scholar %}
+      <li><a href="https://scholar.google.com/citations?user={{ a.google_scholar }}&amp;hl=en" rel="me"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>Google Scholar</a></li>
+      {%- endif %}
+    </ul>
   </div>
 </footer>

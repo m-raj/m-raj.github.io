@@ -1,13 +1,24 @@
-# Talks and posters, newest first. Rendered by _includes/list_talks.html.
-# Put slide/poster files in assets/talks/ and link them as
-# "/assets/talks/<file>.pdf". Every field except title, event and year is optional.
-#
-# - title: "Talk title"
-#   event: "Conference or seminar name"
-#   location: "City, Country"
-#   date: "July 2026"
-#   year: 2026
-#   type: Talk            # Talk, Invited talk, Poster, ...
-#   slides: "/assets/talks/my-talk.pdf"
-#   video: "https://www.youtube.com/watch?v=..."
-#   project: "/projects/neural-constitutive-laws/"
+# Details for the talk PDFs in assets/talks/, shown on the Talks page (newest date first).
+# `file` must match the PDF's file name in assets/talks/. Dates are YYYY-MM-DD.
+# Optional `date_label` replaces the shown date (e.g. "May 2025" when the day is unknown);
+# `date` is still used for sorting.
+# A PDF with no entry here is still listed, titled by its file name.
+
+- file: MURI_Research_Grant_Meeting.pdf
+  title: "Learning History-Dependent Constitutive Laws From Data"
+  event: MURI Meeting
+  date: 2026-11-03
+  place: Caltech
+
+- file: Candidacy_Talk.pdf
+  title: "Learning History-Dependent Constitutive Laws From Data"
+  event: Candidacy Talk
+  date: 2026-06-11
+  place: Caltech
+
+- file: ScientificAI_Cornell.pdf
+  title: "Learning Stable Constitutive Model Through Energetic Formulation"
+  event: ScientificAI
+  date: 2025-05-01
+  date_label: May 2025
+  place: Cornell

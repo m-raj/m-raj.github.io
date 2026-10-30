@@ -1,0 +1,50 @@
+/* Footer: one line with name, email and profile links (wraps only on narrow screens). */
+.site-footer {
+  margin-top: 60px;
+  padding: 18px 0;
+  border-top: 1px solid #e8e8e8;
+  background: #f7f8fa;
+  font-size: 14px;
+  color: #828282;
+}
+
+.footer-row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  white-space: nowrap;
+}
+
+.footer-row li {
+  margin: 0;
+}
+
+.footer-row a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #828282;
+  transition: color .2s ease;
+}
+
+.footer-row a:hover {
+  color: #2a7ae2;
+  text-decoration: none;
+}
+
+.footer-row .svg-icon {
+  width: 15px;
+  height: 15px;
+  padding-right: 0;
+  fill: currentColor;
+}
+
+.footer-name {
+  font-weight: 600;
+  color: #424242;
+}

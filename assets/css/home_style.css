@@ -15,6 +15,43 @@
     flex: 65%;
   }}
 
+.home-name {
+  font-size: 2.4rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 16px;
+}
+
+.profile-links {
+  list-style: none;
+  width: 250px;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+
+.profile-links .profile-email {
+  flex-basis: 100%;
+  text-align: center;
+}
+
+.profile-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .95rem;
+}
+
+.profile-links .svg-icon {
+  width: 16px;
+  height: 16px;
+  padding-right: 0;
+  fill: currentColor;
+}
+
 .profile-image {
   width: 250px;
   height: 250px;

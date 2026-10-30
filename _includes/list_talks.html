@@ -1,28 +1,44 @@
 <style>
   .talks { list-style:none; padding:0; margin:0; }
   .talks li { padding:14px 0; border-bottom:1px solid #e2e8f0; line-height:1.5; }
-  .talks .year { display:inline-block; min-width:3.2em; font-weight:600; color:#2b6cb0; }
   .talks .t { font-weight:600; }
-  .talks .kind { font-size:.75rem; text-transform:uppercase; letter-spacing:.04em; color:#2b6cb0; margin-left:.5em; }
   .talks .v { color:#4a5568; font-size:.93rem; }
   .talks .links a { font-size:.85rem; margin-right:.8em; }
 </style>
-{% assign talks = site.data.talks %}
-{% if talks and talks.size > 0 %}
-<ul class="talks">
-  {% for item in talks %}
+{%- comment -%}
+  Lists the PDFs in assets/talks/. Title, event, date and place come from
+  _data/talks.yml; a PDF without an entry is listed by its file name.
+{%- endcomment -%}
+{%- assign meta = site.data.talks | sort: "date" | reverse -%}
+{%- assign described = meta | map: "file" | join: "|" | prepend: "|" | append: "|" -%}
+{%- assign pdfs = site.static_files | where_exp: "f", "f.path contains '/assets/talks/'" | sort: "path" -%}
+
+{%- capture listed -%}
+  {%- for item in meta -%}
+    {%- assign url = "/assets/talks/" | append: item.file | relative_url -%}
   <li>
-    <span class="year">{{ item.year }}</span>
-    <span class="t">{{ item.title }}</span>{% if item.type %}<span class="kind">{{ item.type }}</span>{% endif %}<br>
-    <span class="v"><i>{{ item.event }}</i>{% if item.location %}, {{ item.location }}{% endif %}{% if item.date %} · {{ item.date }}{% endif %}</span>
-    {% if item.slides or item.video or item.project %}<br><span class="links">
-      {% if item.slides %}<a href="{{ item.slides }}">Slides</a>{% endif %}
-      {% if item.video %}<a href="{{ item.video }}">Video</a>{% endif %}
-      {% if item.project %}<a href="{{ item.project }}">Project page →</a>{% endif %}
-    </span>{% endif %}
+    <span class="t"><a href="{{ url }}">{{ item.title | default: item.file }}</a></span><br>
+    <span class="v">{% if item.event %}<i>{{ item.event }}</i>{% endif %}{% if item.place %}, {{ item.place }}{% endif %}{% if item.date_label %} · {{ item.date_label }}{% elsif item.date %} · {{ item.date | date: "%B %-d, %Y" }}{% endif %}</span><br>
+    <span class="links"><a href="{{ url }}">Slides (PDF)</a></span>
   </li>
-  {% endfor %}
-</ul>
-{% else %}
+  {%- endfor -%}
+  {%- for f in pdfs -%}
+    {%- assign ext = f.extname | downcase -%}
+    {%- assign key = f.name | prepend: "|" | append: "|" -%}
+    {%- if ext == ".pdf" -%}
+      {%- unless described contains key -%}
+  <li>
+    <span class="t"><a href="{{ f.path | relative_url }}">{{ f.basename | replace: "_", " " | replace: "-", " " }}</a></span><br>
+    <span class="links"><a href="{{ f.path | relative_url }}">Slides (PDF)</a></span>
+  </li>
+      {%- endunless -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- assign listed_text = listed | strip -%}
+{%- if listed_text != "" -%}
+<ul class="talks">{{ listed }}</ul>
+{%- else -%}
 <p>Coming soon.</p>
-{% endif %}
+{%- endif -%}
