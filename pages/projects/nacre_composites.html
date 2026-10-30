@@ -1,0 +1,272 @@
+---
+layout: default
+title: "Nacre-like composites"
+exclude: true
+permalink: /projects/nacre-composites/
+---
+<link rel="stylesheet" href="/assets/css/project_detail.css">
+<style>
+  .proj input[type=range] { width:100%; max-width:420px; accent-color:var(--blue); }
+  .proj .readout { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin:.8rem 0; }
+  .proj .readout div { background:var(--soft); border-radius:8px; padding:8px 12px; font-size:.85rem; color:var(--muted); }
+  .proj .readout b { display:block; font-size:1.15rem; color:var(--ink); font-variant-numeric:tabular-nums; }
+</style>
+
+<div class="proj">
+
+<h1>Mechanical properties of nacre-like composites: a bottom-up approach</h1>
+<p class="byline">Mayank Raj, Sandeep P. Patil, Bernd Markert · IIT Madras &amp; RWTH Aachen University<br>
+<em>Journal of Composites Science</em> 4 (2020) 35 · open access (CC BY)</p>
+<p class="links">
+  <a href="https://doi.org/10.3390/jcs4020035" target="_blank" rel="noopener">Paper (DOI)</a>
+</p>
+
+<p>Nacre, or mother of pearl, is about 95% brittle aragonite, yet it is remarkably tough. The trick lies in its
+brick-and-mortar layout: stiff mineral tablets glued together by a thin layer of soft protein. Reported values for how
+stiff that protein "mortar" is range over two orders of magnitude, from 150 MPa to 15 GPa. This project first
+<strong>computes the stiffness of the protein layer from atoms up</strong> with molecular dynamics. It then feeds that value
+into <strong>3D finite-element models</strong> to find how much mortar gives the toughest composite.</p>
+
+<div class="stats">
+  <div class="stat"><b>1.25–1.45</b><span>GPa: shear modulus of the organic matrix from MD</span></div>
+  <div class="stat"><b>~1.2 M</b><span>atoms in the molecular-dynamics shear simulation</span></div>
+  <div class="stat"><b>10–20%</b><span>organic volume fraction for the highest toughness</span></div>
+  <div class="stat"><b>160 MPa</b><span>aragonite failure stress used in the FE model</span></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>Two scales, one pipeline</h2>
+<figure>
+<svg viewBox="0 0 760 230" role="img" aria-label="Pipeline: molecular dynamics of proteins sheared between aragonite slabs gives the shear modulus, converted to an elastic modulus, used in a finite-element brick-and-mortar model that predicts stiffness, strength and toughness">
+  <defs><marker id="na" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5b6672"/></marker></defs>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" text-anchor="middle">
+    <!-- MD -->
+    <g transform="translate(20,20)">
+      <rect width="220" height="170" rx="10" fill="#f5f7fa" stroke="#d9dee4"/>
+      <rect x="25" y="22" width="170" height="26" rx="3" fill="#c53030" opacity=".85"/>
+      <rect x="25" y="122" width="170" height="26" rx="3" fill="#c53030" opacity=".85"/>
+      <path d="M35,60 C60,110 75,55 100,95 S140,60 160,108 S185,70 190,90" fill="none" stroke="#2f855a" stroke-width="2.5"/>
+      <path d="M30,100 C55,62 80,112 110,70 S150,110 185,64" fill="none" stroke="#2b6cb0" stroke-width="2.5"/>
+      <path d="M80,15 L150,15" stroke="#1f2933" stroke-width="2" marker-end="url(#na)"/>
+      <text x="110" y="166" font-size="12" fill="#1f2933">MD: proteins between aragonite</text>
+    </g>
+    <line x1="246" y1="105" x2="300" y2="105" stroke="#5b6672" stroke-width="2" marker-end="url(#na)"/>
+    <!-- numbers -->
+    <g transform="translate(306,50)">
+      <rect width="150" height="110" rx="10" fill="#ebf8ff" stroke="#2b6cb0"/>
+      <text x="75" y="32" font-size="15" font-weight="600" fill="#2b6cb0">G = 1.387 GPa</text>
+      <text x="75" y="56" font-size="12" fill="#5b6672">ν = 0.36</text>
+      <text x="75" y="88" font-size="15" font-weight="600" fill="#2b6cb0">E₀ = 3.78 GPa</text>
+    </g>
+    <line x1="462" y1="105" x2="516" y2="105" stroke="#5b6672" stroke-width="2" marker-end="url(#na)"/>
+    <!-- FE -->
+    <g transform="translate(522,20)">
+      <rect width="220" height="170" rx="10" fill="#f5f7fa" stroke="#d9dee4"/>
+      <g fill="#2b6cb0" stroke="#ecc94b" stroke-width="4">
+        <rect x="22" y="32" width="70" height="24"/><rect x="92" y="32" width="70" height="24"/><rect x="162" y="32" width="36" height="24"/>
+        <rect x="22" y="60" width="35" height="24"/><rect x="57" y="60" width="70" height="24"/><rect x="127" y="60" width="71" height="24"/>
+        <rect x="22" y="88" width="70" height="24"/><rect x="92" y="88" width="70" height="24"/><rect x="162" y="88" width="36" height="24"/>
+      </g>
+      <path d="M150,132 L200,132" stroke="#1f2933" stroke-width="2" marker-end="url(#na)"/>
+      <text x="110" y="166" font-size="12" fill="#1f2933">FE: 3D brick-and-mortar</text>
+    </g>
+  </g>
+</svg>
+<figcaption>The protein stiffness computed with atoms becomes the input to a continuum model of the composite, with no fitted parameters in between.</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2>Step 1: shearing the protein glue (molecular dynamics)</h2>
+<p>The organic matrix was built from the two proteins thought to matter most mechanically: <strong>Lustrin A</strong>
+(its elastic glycine–serine domain) and <strong>Perlucin</strong>. Two units of each were folded into U-shapes, packed between
+two aragonite slabs in a 16.1 × 41.1 × 16.1 nm³ water box, and simulated in GROMACS with the OPLS-AA force field. The bottom slab is held
+fixed and the top slab is dragged sideways at constant speed through a spring. The slope of shear stress against shear strain is the shear modulus.</p>
+
+<figure>
+<svg id="nc-shear" viewBox="0 0 760 260" role="img" aria-label="Shear stress versus shear strain from MD, with linear fit stress = 0.109 + 1.387 strain"></svg>
+<figcaption>Linear fit to the shearing part of one simulation (Fig. 3): τ = 0.109 + 1.387 γ GPa. The jagged curve is illustrative and follows the fit line; only the fit is from the paper.</figcaption>
+</figure>
+
+<p>Repeated simulations put the shear modulus at <strong>1.25–1.45 GPa</strong>. That lands inside, and narrows, the very wide range reported in earlier experiments and models:</p>
+<figure>
+<svg id="nc-range" viewBox="0 0 760 120" role="img" aria-label="Log-scale range of literature shear modulus values from 0.15 to 15 GPa, with this work's 1.25 to 1.45 GPa highlighted"></svg>
+<figcaption>Shear modulus of nacre's organic matrix, log scale. Grey: range across the literature. Blue: this work.</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2>Step 2: the brick-and-mortar FE model</h2>
+<p>A unit hexagonal aragonite tablet wrapped in a thin organic layer is meshed, tiled across the plane, and extruded into
+three staggered lamellae. Widening the gaps between tablets and between layers changes the organic volume fraction from
+5% to 40%. The model is fixed at one end and pulled at the other in LS-DYNA, an explicit solver.</p>
+<div class="cards">
+  <div class="card2"><h4>Aragonite</h4><p>E = 107 GPa, ν = 0.25. Brittle: cracks when the maximum principal stress reaches 160 MPa.</p></div>
+  <div class="card2"><h4>Organic matrix</h4><p>Bilinear elastoplastic with isotropic hardening and no failure. E₀ = 3.78 GPa (from MD) or 11 GPa (from AFM, for comparison).</p></div>
+  <div class="card2"><h4>Validation</h4><p>At 5% organic, the elastic stress–strain response matches the tension experiments of Barthelat &amp; Espinosa (2007).</p></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>Explore: how much mortar?</h2>
+<p>Drag the slider to change the organic fraction. The sketch redraws the microstructure, and the numbers show the
+simulated stiffness, strength and toughness of the composite for both matrix stiffnesses.</p>
+<label for="nc-slider" style="font-size:.9rem">Organic matrix: <b id="nc-pct">10%</b></label><br>
+<input id="nc-slider" type="range" min="5" max="40" step="1" value="10">
+<figure style="margin-top:.6rem">
+<svg id="nc-bm" viewBox="0 0 760 170" role="img" aria-label="Brick and mortar sketch whose mortar thickness follows the slider"></svg>
+</figure>
+<div class="readout" id="nc-readout"></div>
+<p class="note">Values between the simulated fractions (5, 10, 20, 30, 40%) are linearly interpolated. All curve values are approximate, read from Figs. 7–8.</p>
+
+<div class="two">
+<figure><svg id="nc-mod" viewBox="0 0 360 250" role="img" aria-label="Composite elastic modulus falls almost linearly with organic fraction"></svg>
+<figcaption>Composite stiffness falls almost linearly as mortar is added (Fig. 7).</figcaption></figure>
+<figure><svg id="nc-str" viewBox="0 0 360 250" role="img" aria-label="Maximum stress falls with organic fraction"></svg>
+<figcaption>Strength (maximum nominal stress) falls too (Fig. 8b).</figcaption></figure>
+</div>
+<figure><svg id="nc-tough" viewBox="0 0 760 280" role="img" aria-label="Toughness rises from 5 to 10 percent, plateaus, then falls; the softer matrix gives the highest peak between 10 and 20 percent"></svg>
+<figcaption>Toughness (area under the stress–strain curve, kJ/m³) is not monotonic (Fig. 8a). The shaded band is the 10–20% optimum.</figcaption></figure>
+
+<!-- ============================================================ -->
+<h2>Why toughness peaks: a trade-off</h2>
+<p>More mortar means the aragonite tablets carry less strain, so they crack later and the composite stretches further
+(area <b style="color:#b7791f">C</b> below). But the composite is also weaker, so the curve sits lower (area <b style="color:#2b6cb0">B</b> is lost). Toughness rises
+while the gain from C beats the loss from B. Past about 20% mortar (30% for the stiffer matrix), the loss wins. With enough mortar the tablets never reach
+160 MPa at all, and the composite stops failing in a brittle way.</p>
+<figure><svg id="nc-trade" viewBox="0 0 760 270" role="img" aria-label="Schematic of two stress strain curves: 5 percent fails earlier at higher stress, 10 percent fails later at lower stress; areas A shared, B lost, C gained"></svg>
+<figcaption>Schematic after Fig. 9 of the paper, going from 5% to 10% organic. A: area under both curves. B: area only the 5% curve has (lost strength). C: area only the 10% curve has (delayed failure).</figcaption></figure>
+
+<!-- ============================================================ -->
+<h2>Takeaways</h2>
+<ul>
+  <li>MD puts the shear modulus of nacre's organic matrix (Lustrin A + Perlucin) at <strong>1.25–1.45 GPa</strong>, narrowing a 100× spread in the literature.</li>
+  <li>That value, used directly in a 3D brick-and-mortar FE model, <strong>reproduces measured elastic behaviour</strong> without fitting.</li>
+  <li><strong>10–20% organic content gives the highest toughness</strong>. Adding more mortar always costs stiffness and strength.</li>
+  <li>A <strong>softer matrix (~3.8 GPa) gives the highest optimum toughness</strong>, but only at the right fraction; at 5% it is worse than a stiff one.</li>
+  <li>Next steps: add mineral bridges and nano-asperities so the model captures nacre's plastic regime.</li>
+</ul>
+
+</div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var C = { ink:'#1f2933', muted:'#5b6672', line:'#d9dee4', blue:'#2b6cb0', orange:'#dd6b20', gold:'#ecc94b', red:'#c53030' };
+  function el(p, t, a, x) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); if (x !== undefined) e.textContent = x; p.appendChild(e); return e; }
+  function sc(d0, d1, r0, r1) { return function (v) { return r0 + (v - d0) / (d1 - d0) * (r1 - r0); }; }
+
+  // Approximate values read from Figs. 7 and 8 of the paper.
+  var VF = [5, 10, 20, 30, 40];
+  var D = {
+    mod:   { lo:[85, 74.5, 60.5, 42.5, 32.5], hi:[96, 86.5, 72.5, 61, 50] },
+    str:   { lo:[55, 49.5, 37.5, 26.5, 21.5], hi:[59, 54, 43, 30.5, 25] },
+    tough: { lo:[24.6, 27.4, 27.6, 21.3, 16.0], hi:[25.2, 26.1, 26.1, 26.1, 20.4] }
+  };
+  function interp(arr, v) { for (var i = 0; i < VF.length - 1; i++) if (v <= VF[i + 1]) return arr[i] + (arr[i + 1] - arr[i]) * (v - VF[i]) / (VF[i + 1] - VF[i]); return arr[arr.length - 1]; }
+
+  // Line chart with two series + optional marker at x
+  function lines(id, W, H, ser, yr, yt, ylab, opt) {
+    var svg = document.getElementById(id), L = 50, R = 14, T = 30, B = 36;
+    var x = sc(0, 42, L, W - R), y = sc(yr[0], yr[1], H - B, T);
+    svg.innerHTML = '';
+    if (opt && opt.band) el(svg, 'rect', { x:x(opt.band[0]), y:T, width:x(opt.band[1]) - x(opt.band[0]), height:H - B - T, fill:'#fefcbf' });
+    yt.forEach(function (t) { el(svg, 'line', { x1:L, x2:W - R, y1:y(t), y2:y(t), stroke:C.line });
+      el(svg, 'text', { x:L - 6, y:y(t) + 4, 'text-anchor':'end', 'font-size':11, fill:C.muted }, t); });
+    [0, 10, 20, 30, 40].forEach(function (t) { el(svg, 'text', { x:x(t), y:H - B + 16, 'text-anchor':'middle', 'font-size':11, fill:C.muted }, t + '%'); });
+    el(svg, 'text', { x:(L + W - R) / 2, y:H - 4, 'text-anchor':'middle', 'font-size':11, fill:C.muted }, 'organic matrix (vol %)');
+    el(svg, 'text', { x:L, y:16, 'font-size':11, fill:C.muted }, ylab);
+    if (opt && opt.mark !== undefined) el(svg, 'line', { x1:x(opt.mark), x2:x(opt.mark), y1:T, y2:H - B, stroke:C.muted, 'stroke-dasharray':'4 4' });
+    [['lo', C.blue, 'E₀ = 3.78 GPa (MD)'], ['hi', C.orange, 'E₀ = 11 GPa']].forEach(function (s, k) {
+      var d = ser[s[0]].map(function (v, i) { return (i ? 'L' : 'M') + x(VF[i]) + ',' + y(v); }).join('');
+      el(svg, 'path', { d:d, fill:'none', stroke:s[1], 'stroke-width':2.5 });
+      ser[s[0]].forEach(function (v, i) { el(svg, 'circle', { cx:x(VF[i]), cy:y(v), r:3.5, fill:s[1] }); });
+      if (opt && opt.mark !== undefined) el(svg, 'circle', { cx:x(opt.mark), cy:y(interp(ser[s[0]], opt.mark)), r:6, fill:'#fff', stroke:s[1], 'stroke-width':2.5 });
+      el(svg, 'line', { x1:W - R - 150, x2:W - R - 132, y1:12 + k * 15, y2:12 + k * 15, stroke:s[1], 'stroke-width':2.5 });
+      el(svg, 'text', { x:W - R - 126, y:16 + k * 15, 'font-size':11, fill:C.ink }, s[2]);
+    });
+  }
+
+  // Brick-and-mortar sketch
+  function bricks(pct) {
+    var svg = document.getElementById('nc-bm'); svg.innerHTML = '';
+    var W = 760, H = 170, rows = 4, cols = 6;
+    // mortar thickness g chosen so mortar area fraction ≈ pct
+    var f = pct / 100, cw = W / cols, ch = H / rows;
+    // area fraction of tablet = (cw-g)(ch-g)/(cw*ch) = 1-f  -> solve quadratic for g
+    var a = 1, b = -(cw + ch), c = cw * ch * f, g = (-b - Math.sqrt(b * b - 4 * a * c)) / 2;
+    el(svg, 'rect', { x:0, y:0, width:W, height:H, fill:C.gold });
+    for (var r = 0; r < rows; r++) {
+      var off = (r % 2) ? cw / 2 : 0;
+      for (var k = -1; k <= cols; k++) {
+        var x0 = k * cw + off + g / 2, x1 = x0 + cw - g;
+        x0 = Math.max(x0, 0); x1 = Math.min(x1, W);
+        if (x1 > x0) el(svg, 'rect', { x:x0, y:r * ch + g / 2, width:x1 - x0, height:ch - g, fill:C.blue });
+      }
+    }
+  }
+
+  var slider = document.getElementById('nc-slider'), out = document.getElementById('nc-readout'), pctEl = document.getElementById('nc-pct');
+  function update() {
+    var v = +slider.value; pctEl.textContent = v + '%'; bricks(v);
+    function cell(label, key, unit, dp) {
+      return '<div>' + label + '<b>' + interp(D[key].lo, v).toFixed(dp) + ' / ' + interp(D[key].hi, v).toFixed(dp) + ' ' + unit + '</b>E₀ = 3.78 / 11 GPa</div>';
+    }
+    out.innerHTML = cell('Stiffness', 'mod', 'GPa', 0) + cell('Strength', 'str', 'MPa', 0) + cell('Toughness', 'tough', 'kJ/m³', 1);
+    lines('nc-mod', 360, 250, D.mod, [20, 110], [20, 40, 60, 80, 100], 'composite modulus (GPa)', { mark:v });
+    lines('nc-str', 360, 250, D.str, [15, 65], [20, 30, 40, 50, 60], 'max stress (MPa)', { mark:v });
+    lines('nc-tough', 760, 280, D.tough, [14, 30], [15, 20, 25, 30], 'toughness (kJ/m³)', { mark:v, band:[10, 20] });
+  }
+  slider.addEventListener('input', update); update();
+
+  // MD shear curve
+  (function () {
+    var svg = document.getElementById('nc-shear'), W = 760, H = 260, L = 60, R = 20, T = 20, B = 40;
+    var x = sc(0, 0.33, L, W - R), y = sc(0, 0.6, H - B, T);
+    [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6].forEach(function (t) { el(svg, 'line', { x1:L, x2:W - R, y1:y(t), y2:y(t), stroke:C.line });
+      el(svg, 'text', { x:L - 6, y:y(t) + 4, 'text-anchor':'end', 'font-size':11, fill:C.muted }, t.toFixed(1)); });
+    [0, 0.08, 0.16, 0.24, 0.32].forEach(function (t) { el(svg, 'text', { x:x(t), y:H - B + 16, 'text-anchor':'middle', 'font-size':11, fill:C.muted }, t); });
+    el(svg, 'text', { x:(L + W - R) / 2, y:H - 4, 'text-anchor':'middle', 'font-size':12, fill:C.muted }, 'shear strain γ');
+    el(svg, 'text', { x:L, y:12, 'font-size':12, fill:C.muted }, 'shear stress τ (GPa)');
+    el(svg, 'line', { x1:x(0), x2:x(0), y1:y(0), y2:y(0.07), stroke:C.ink, 'stroke-width':2.5 });
+    var d = 'M' + x(0) + ',' + y(0.07), s = 11;
+    for (var i = 1; i <= 120; i++) { var g = 0.3 * i / 120; s = (s * 9301 + 49297) % 233280;
+      d += 'L' + x(g) + ',' + y(0.109 + 1.387 * g + 0.018 * Math.sin(g * 60) + 0.012 * (s / 233280 - 0.5)); }
+    el(svg, 'path', { d:d, fill:'none', stroke:C.red, 'stroke-width':2 });
+    el(svg, 'line', { x1:x(0), x2:x(0.32), y1:y(0.109), y2:y(0.109 + 1.387 * 0.32), stroke:C.blue, 'stroke-width':2, 'stroke-dasharray':'7 5' });
+    el(svg, 'text', { x:x(0.2), y:y(0.5), 'font-size':14, 'font-weight':600, fill:C.blue }, 'slope G = 1.387 GPa');
+    el(svg, 'text', { x:x(0.005) + 8, y:y(0.04), 'font-size':11, fill:C.muted }, 'tablet sticks, no shearing yet');
+  })();
+
+  // Literature range (log scale)
+  (function () {
+    var svg = document.getElementById('nc-range'), x = sc(Math.log10(0.1), Math.log10(20), 40, 720);
+    function X(v) { return x(Math.log10(v)); }
+    el(svg, 'line', { x1:40, x2:720, y1:70, y2:70, stroke:C.muted });
+    [0.1, 0.3, 1, 3, 10].forEach(function (t) { el(svg, 'line', { x1:X(t), x2:X(t), y1:66, y2:74, stroke:C.muted });
+      el(svg, 'text', { x:X(t), y:92, 'text-anchor':'middle', 'font-size':11, fill:C.muted }, t + ' GPa'); });
+    el(svg, 'rect', { x:X(0.15), y:44, width:X(15) - X(0.15), height:16, rx:8, fill:'#cbd5e0' });
+    el(svg, 'text', { x:X(0.15), y:36, 'font-size':12, fill:C.muted }, 'literature: 0.15 – 15 GPa');
+    el(svg, 'rect', { x:X(1.25) - 3, y:40, width:X(1.45) - X(1.25) + 6, height:24, rx:4, fill:C.blue });
+    el(svg, 'text', { x:X(1.35), y:116, 'text-anchor':'middle', 'font-size':12, 'font-weight':600, fill:C.blue }, 'this work: 1.25 – 1.45 GPa');
+  })();
+
+  // Trade-off schematic (after Fig. 9)
+  (function () {
+    var svg = document.getElementById('nc-trade'), W = 760, H = 270, L = 60, R = 30, T = 20, B = 40;
+    var x = sc(0, 1.05, L, W - R), y = sc(0, 60, H - B, T);
+    function curve(e, k) { return k * e; } // linear-ish schematic
+    var e5 = 0.82, e10 = 0.96, k5 = 55 / 0.82, k10 = 49.5 / 0.96;
+    function area(fn, e0, e1) { var d = 'M' + x(e0) + ',' + y(0); for (var i = 0; i <= 40; i++) { var e = e0 + (e1 - e0) * i / 40; d += 'L' + x(e) + ',' + y(fn(e)); } return d + 'L' + x(e1) + ',' + y(0) + 'Z'; }
+    el(svg, 'path', { d:area(function (e) { return k5 * e; }, 0, e5), fill:'#90cdf4' });          // B (top strip shows through)
+    el(svg, 'path', { d:area(function (e) { return k10 * e; }, 0, e5), fill:'#dd6b20', opacity:.85 }); // A
+    el(svg, 'path', { d:area(function (e) { return k10 * e; }, e5, e10), fill:C.gold });            // C
+    el(svg, 'line', { x1:L, x2:W - R, y1:y(0), y2:y(0), stroke:C.muted });
+    el(svg, 'line', { x1:L, x2:L, y1:T, y2:y(0), stroke:C.muted });
+    el(svg, 'text', { x:x(0.55), y:y(14), 'font-size':22, 'font-weight':700, fill:'#fff', 'text-anchor':'middle' }, 'A');
+    el(svg, 'text', { x:x(0.62), y:y(38), 'font-size':18, 'font-weight':700, fill:C.blue, 'text-anchor':'middle' }, 'B');
+    el(svg, 'text', { x:x((e5 + e10) / 2), y:y(18), 'font-size':22, 'font-weight':700, fill:'#744210', 'text-anchor':'middle' }, 'C');
+    el(svg, 'text', { x:x(e5), y:y(57), 'font-size':12, fill:C.ink, 'text-anchor':'middle' }, '5% fails here');
+    el(svg, 'text', { x:x(e10), y:y(53), 'font-size':12, fill:C.ink, 'text-anchor':'middle' }, '10% fails later');
+    el(svg, 'text', { x:(L + W - R) / 2, y:H - 6, 'text-anchor':'middle', 'font-size':12, fill:C.muted }, 'strain →');
+    el(svg, 'text', { x:L + 4, y:T + 4, 'font-size':12, fill:C.muted }, 'stress ↑');
+  })();
+})();
+</script>

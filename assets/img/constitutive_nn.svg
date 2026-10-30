@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260">
+  <rect width="400" height="260" fill="#f5f7fa"/>
+  <g stroke="#fff" stroke-width="3">
+    <polygon points="20,20 90,20 80,80 20,95" fill="#90cdf4"/>
+    <polygon points="90,20 170,20 170,75 120,90 80,80" fill="#63b3ed"/>
+    <polygon points="20,95 80,80 100,140 55,200 20,200" fill="#4299e1"/>
+    <polygon points="80,80 120,90 150,135 100,140" fill="#bee3f8"/>
+    <polygon points="120,90 170,75 170,160 150,135" fill="#3182ce"/>
+    <polygon points="100,140 150,135 170,160 170,200 55,200" fill="#90cdf4"/>
+  </g>
+  <path d="M185,110 L215,110" stroke="#5b6672" stroke-width="3"/>
+  <path d="M215,102 L228,110 L215,118 z" fill="#5b6672"/>
+  <g stroke="#a0aec0" stroke-width="1.2">
+    <path d="M250,70 L300,55 M250,70 L300,95 M250,70 L300,135 M250,70 L300,175 M250,120 L300,55 M250,120 L300,95 M250,120 L300,135 M250,120 L300,175 M250,170 L300,55 M250,170 L300,95 M250,170 L300,135 M250,170 L300,175 M300,55 L355,115 M300,95 L355,115 M300,135 L355,115 M300,175 L355,115"/>
+  </g>
+  <g fill="#2b6cb0">
+    <circle cx="250" cy="70" r="9"/><circle cx="250" cy="120" r="9"/><circle cx="250" cy="170" r="9"/>
+    <circle cx="300" cy="55" r="9"/><circle cx="300" cy="95" r="9"/><circle cx="300" cy="135" r="9"/><circle cx="300" cy="175" r="9"/>
+  </g>
+  <circle cx="355" cy="115" r="11" fill="#dd6b20"/>
+  <text x="200" y="240" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="18" fill="#1f2933">W(F, ξ)  ·  D(ξ̇)  →  P(t)</text>
+</svg>

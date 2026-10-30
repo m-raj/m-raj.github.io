@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260">
+  <rect width="400" height="260" fill="#ecc94b"/>
+  <g fill="#2b6cb0">
+    <rect x="-40" y="10" width="110" height="40"/><rect x="78" y="10" width="110" height="40"/><rect x="196" y="10" width="110" height="40"/><rect x="314" y="10" width="110" height="40"/>
+    <rect x="18" y="58" width="110" height="40"/><rect x="136" y="58" width="110" height="40"/><rect x="254" y="58" width="110" height="40"/><rect x="372" y="58" width="110" height="40"/>
+    <rect x="-40" y="106" width="110" height="40"/><rect x="78" y="106" width="110" height="40"/><rect x="196" y="106" width="110" height="40"/><rect x="314" y="106" width="110" height="40"/>
+    <rect x="18" y="154" width="110" height="40"/><rect x="136" y="154" width="110" height="40"/><rect x="254" y="154" width="110" height="40"/><rect x="372" y="154" width="110" height="40"/>
+  </g>
+  <rect x="0" y="202" width="400" height="58" fill="#f5f7fa"/>
+  <text x="200" y="238" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="18" fill="#1f2933">aragonite bricks + protein mortar</text>
+</svg>

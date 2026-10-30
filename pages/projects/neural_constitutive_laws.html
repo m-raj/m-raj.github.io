@@ -1,0 +1,353 @@
+---
+layout: default
+title: "Learning history-dependent constitutive laws"
+exclude: true
+permalink: /projects/neural-constitutive-laws/
+---
+<script>
+  window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
+
+<link rel="stylesheet" href="/assets/css/project_detail.css">
+
+<div class="proj">
+
+<h1>A neural-network framework to learn history-dependent constitutive laws</h1>
+<p class="byline">Mayank Raj, Lianghao Cao, Andrew Stuart, Kaushik Bhattacharya · Caltech<br>
+<em>Journal of the Mechanics and Physics of Solids</em> 217 (2026) 106807</p>
+<p class="links">
+  <a href="https://doi.org/10.1016/j.jmps.2026.106807" target="_blank" rel="noopener">Paper (DOI)</a>
+  <a href="https://github.com/m-raj/Learning-Stable-Material-Model" target="_blank" rel="noopener">Code on GitHub</a>
+</p>
+
+<p>Metals deform in ways that depend on their loading history. Simulating that behaviour across scales (FE²) is very expensive,
+so a common shortcut is to train a neural network to stand in for the fine-scale model. But a plain recurrent network has no
+reason to respect thermodynamics, stay stable under extreme strain, or give a well-posed boundary-value problem.
+This project builds a surrogate that is <strong>physically consistent by construction</strong>: the network learns an
+<em>energy</em> and a <em>dissipation</em> potential, and stress and internal-variable evolution are derived from them.</p>
+
+<div class="stats">
+  <div class="stat"><b>2%</b><span>median relative error in predicted stress</span></div>
+  <div class="stat"><b>6</b><span>internal variables were enough to capture the history</span></div>
+  <div class="stat"><b>~48×</b><span>faster per time-step than the crystal-plasticity model</span></div>
+  <div class="stat"><b>~5%</b><span>linear-fit error between internal variables of two independently trained models</span></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>The problem: from microstructure to a macroscopic law</h2>
+<p>The training data come from a crystal-plasticity model of a magnesium polycrystal: a cube with 128 randomly oriented grains,
+each with basal, prismatic and pyramidal slip systems plus tensile twinning. The cell is driven by random deformation-gradient
+paths $\mathbf F(t)$, and the Taylor-averaged stress $\mathbf P^\dagger(t)$ is recorded. The goal is the history-dependent map</p>
+<div class="eq">$$\Psi^\dagger : \{\mathbf F(\tau)\}_{\tau\in(0,t)} \;\longmapsto\; \mathbf P^\dagger(t).$$</div>
+
+<figure>
+<svg viewBox="0 0 760 210" role="img" aria-label="Multiscale workflow: polycrystal unit cell generates strain-stress data which train a neural constitutive law used in a macroscale solver">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5b6672"/></marker>
+  </defs>
+  <!-- polycrystal -->
+  <g transform="translate(20,30)">
+    <rect x="0" y="0" width="150" height="150" rx="8" fill="#f5f7fa" stroke="#d9dee4"/>
+    <g stroke="#fff" stroke-width="2">
+      <polygon points="10,10 70,10 60,55 10,65" fill="#90cdf4"/>
+      <polygon points="70,10 140,10 140,50 95,62 60,55" fill="#63b3ed"/>
+      <polygon points="10,65 60,55 75,100 40,140 10,140" fill="#4299e1"/>
+      <polygon points="60,55 95,62 120,95 75,100" fill="#bee3f8"/>
+      <polygon points="95,62 140,50 140,110 120,95" fill="#3182ce"/>
+      <polygon points="75,100 120,95 140,110 140,140 40,140" fill="#90cdf4"/>
+    </g>
+    <text x="75" y="172" text-anchor="middle" font-size="13" fill="#1f2933">Mg polycrystal (128 grains)</text>
+  </g>
+  <line x1="180" y1="105" x2="235" y2="105" stroke="#5b6672" stroke-width="2" marker-end="url(#arr)"/>
+  <!-- data -->
+  <g transform="translate(245,45)">
+    <rect x="0" y="0" width="150" height="120" rx="8" fill="#fff" stroke="#d9dee4"/>
+    <path d="M10,85 C35,60 50,95 75,55 S120,40 140,30" fill="none" stroke="#2b6cb0" stroke-width="2"/>
+    <path d="M10,95 C30,50 55,105 80,70 S115,90 140,60" fill="none" stroke="#dd6b20" stroke-width="2"/>
+    <text x="75" y="20" text-anchor="middle" font-size="12" fill="#5b6672">F(t), P(t) trajectories</text>
+    <text x="75" y="142" text-anchor="middle" font-size="13" fill="#1f2933">Taylor-averaged data</text>
+  </g>
+  <line x1="405" y1="105" x2="460" y2="105" stroke="#5b6672" stroke-width="2" marker-end="url(#arr)"/>
+  <!-- NN -->
+  <g transform="translate(470,45)">
+    <rect x="0" y="0" width="120" height="120" rx="8" fill="#fff" stroke="#d9dee4"/>
+    <g fill="#2b6cb0">
+      <circle cx="25" cy="35" r="6"/><circle cx="25" cy="60" r="6"/><circle cx="25" cy="85" r="6"/>
+      <circle cx="60" cy="25" r="6"/><circle cx="60" cy="48" r="6"/><circle cx="60" cy="72" r="6"/><circle cx="60" cy="95" r="6"/>
+      <circle cx="95" cy="60" r="6" fill="#dd6b20"/>
+    </g>
+    <g stroke="#a0aec0" stroke-width="1">
+      <path d="M25,35 L60,25 M25,35 L60,48 M25,35 L60,72 M25,35 L60,95 M25,60 L60,25 M25,60 L60,48 M25,60 L60,72 M25,60 L60,95 M25,85 L60,25 M25,85 L60,48 M25,85 L60,72 M25,85 L60,95 M60,25 L95,60 M60,48 L95,60 M60,72 L95,60 M60,95 L95,60"/>
+    </g>
+    <text x="60" y="142" text-anchor="middle" font-size="13" fill="#1f2933">Learned potentials</text>
+  </g>
+  <line x1="600" y1="105" x2="645" y2="105" stroke="#5b6672" stroke-width="2" marker-end="url(#arr)"/>
+  <!-- macro -->
+  <g transform="translate(655,45)">
+    <rect x="0" y="0" width="90" height="120" rx="8" fill="#fff" stroke="#d9dee4"/>
+    <g stroke="#2b6cb0" stroke-width="1" fill="#ebf8ff">
+      <path d="M15,20 h60 v80 h-60 z"/>
+      <path d="M15,40 h60 M15,60 h60 M15,80 h60 M35,20 v80 M55,20 v80" fill="none"/>
+    </g>
+    <text x="45" y="142" text-anchor="middle" font-size="13" fill="#1f2933">FE solver</text>
+  </g>
+</svg>
+<figcaption>The learned law replaces the expensive fine-scale computation at every material point of a macroscale simulation.</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2>The model: energy + dissipation, with internal variables</h2>
+<p>History is carried by a vector of internal variables $\xi(t)\in\mathbb R^n$ that the network discovers on its own: nobody
+tells it what they mean. Two potentials drive everything: a stored energy $\mathcal W(\mathbf F,\xi)$ and a dissipation potential
+$\mathcal D$ (written through its Legendre transform so the dynamics become an explicit ODE):</p>
+<div class="eq">$$\mathbf P = \frac{\partial \mathcal W(\mathbf F,\xi)}{\partial \mathbf F},\qquad
+d = -\frac{\partial \mathcal W(\mathbf F,\xi)}{\partial \xi},\qquad
+\dot\xi = \frac{\partial \mathcal D(d)}{\partial d},\quad \xi(0)=0.$$</div>
+
+<figure>
+<svg viewBox="0 0 760 250" role="img" aria-label="Feedback loop: strain and internal variables enter the energy network, which gives stress and a driving force; the dissipation network turns the driving force into the rate of internal variables, which is integrated in time">
+  <defs>
+    <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5b6672"/></marker>
+  </defs>
+  <g font-size="14" text-anchor="middle">
+    <rect x="20" y="40" width="110" height="50" rx="8" fill="#f5f7fa" stroke="#d9dee4"/>
+    <text x="75" y="70">strain F(t)</text>
+
+    <rect x="200" y="25" width="200" height="80" rx="10" fill="#ebf8ff" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="300" y="55" font-weight="600" fill="#2b6cb0">Energy  W(F, ξ)</text>
+    <text x="300" y="78" font-size="12" fill="#5b6672">polyconvex input-convex NN</text>
+
+    <rect x="490" y="25" width="140" height="50" rx="8" fill="#fff5eb" stroke="#dd6b20" stroke-width="1.5"/>
+    <text x="560" y="55" font-weight="600" fill="#dd6b20">stress P = ∂W/∂F</text>
+
+    <rect x="490" y="150" width="140" height="60" rx="10" fill="#f0fff4" stroke="#2f855a" stroke-width="1.5"/>
+    <text x="560" y="177" font-weight="600" fill="#2f855a">Dissipation D(d)</text>
+    <text x="560" y="197" font-size="12" fill="#5b6672">convex NN</text>
+
+    <rect x="220" y="155" width="160" height="50" rx="8" fill="#f5f7fa" stroke="#d9dee4"/>
+    <text x="300" y="185">integrate ξ̇ → ξ(t)</text>
+  </g>
+  <g stroke="#5b6672" stroke-width="2" fill="none">
+    <line x1="130" y1="65" x2="196" y2="65" marker-end="url(#arr2)"/>
+    <line x1="400" y1="50" x2="486" y2="50" marker-end="url(#arr2)"/>
+    <path d="M400,90 Q470,110 540,146" marker-end="url(#arr2)"/>
+    <line x1="490" y1="180" x2="384" y2="180" marker-end="url(#arr2)"/>
+    <path d="M300,155 L300,109" marker-end="url(#arr2)"/>
+  </g>
+  <g font-size="12" fill="#5b6672" text-anchor="middle">
+    <text x="478" y="118">d = −∂W/∂ξ</text>
+    <text x="437" y="172">ξ̇ = ∂D/∂d</text>
+    <text x="330" y="134">feeds back</text>
+  </g>
+</svg>
+<figcaption>Stress comes from the energy; the internal variables evolve through the dissipation. Training backpropagates through this time loop.</figcaption>
+</figure>
+
+<p>Splitting the energy into volume-changing and shape-changing parts,
+$\mathcal W = \mathcal W_H(\det\mathbf F) + \mathcal W_V(\mathbf K,\xi)$ with $\mathbf K=\mathbf F/(\det \mathbf F)^{1/3}$,
+turned out to matter a lot: the diagonal stress components are much larger than the shear ones, and learning them together
+makes training hard.</p>
+
+<figure>
+<svg id="ncl-decomp" viewBox="0 0 760 200" role="img" aria-label="Median relative stress error: 15 percent without the energy split, 2 percent with it"></svg>
+<figcaption>Relative error in predicted stress with and without the hydrostatic–deviatoric split of the energy.</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2>Physics built into the architecture</h2>
+<div class="cards">
+  <div class="card2"><h4>Second law of thermodynamics</h4>
+    <p>The dissipation potential is a convex network with its minimum at zero, so the dissipated power is never negative.</p></div>
+  <div class="card2"><h4>Polyconvexity</h4>
+    <p>Energy is convex in $(\mathbf F,\ \mathrm{adj}\,\mathbf F,\ \det\mathbf F)$, the condition behind existence theorems for nonlinear elasticity (Ball, 1976).</p></div>
+  <div class="card2"><h4>Material stability</h4>
+    <p>Analytic growth terms make energy blow up under extreme stretch or as $\det\mathbf F\to0^+$, without disturbing the fit inside the data.</p></div>
+  <div class="card2"><h4>Objectivity</h4>
+    <p>Trained on symmetric $\mathbf F$ only, then extended through the polar decomposition $\mathbf F=\mathbf Q\tilde{\mathbf F}$, so rotating the frame rotates the stress exactly.</p></div>
+</div>
+
+<p>A network only learns where it has data. Outside that range it can do anything, including predict that a material can be
+crushed to a point with finite force. Two hand-built functions fix this: they are nearly flat over the data and grow
+polynomially outside it.</p>
+
+<div class="two">
+<figure>
+<svg id="ncl-g1" viewBox="0 0 360 240" role="img" aria-label="Growth function G1 blows up as x approaches zero"></svg>
+<figcaption>$\mathcal G_1(x)=\frac{1}{n_1}\frac{x_m^{n_1+1}}{x^{n_1}}$ added to the volumetric energy: infinite energy to compress volume to zero ($x_m=0.6,\ n_1=1$).</figcaption>
+</figure>
+<figure>
+<svg id="ncl-g2" viewBox="0 0 360 240" role="img" aria-label="Growth function G2 is flat inside the data range and grows outside"></svg>
+<figcaption>$\mathcal G_2(x)=\frac{x_M}{\alpha n_2}\log\!\big(1+e^{\alpha(|x/x_M|^{n_2}-1)}\big)$: flat inside the data, polynomial growth beyond ($x_M=2,\ \alpha=4,\ n_2=2$).</figcaption>
+</figure>
+</div>
+
+<!-- ============================================================ -->
+<h2>How many internal variables?</h2>
+<p>The number of internal variables is not known in advance. Models with $n=1\ldots12$ were trained with identical
+architecture and data. Error falls steeply up to $n=6$ and then plateaus, so six was chosen.</p>
+<figure>
+<svg id="ncl-nvars" viewBox="0 0 760 260" role="img" aria-label="Median stress error versus number of internal variables, dropping from about 11 percent at one variable to about 2 percent at six and staying flat after"></svg>
+<figcaption>Median relative error in stress (test set) versus the number of internal variables. Dashed line: 2%.</figcaption>
+</figure>
+<p class="note">Bar heights are approximate medians read from Fig. 5 of the paper.</p>
+
+<!-- ============================================================ -->
+<h2>Identifiability: internal variables are unique up to a linear map</h2>
+<p>Two networks trained on the same data from different random starts predict the same stress, but their internal
+variables look different. The paper proves this is the <em>only</em> freedom: under a controllability assumption, any two
+models with identical stress–strain response have internal variables related by an invertible linear map,</p>
+<div class="eq">$$\eta(t) = A\,\xi(t),\qquad A\in GL(n,\mathbb R).$$</div>
+<p>Conversely, any such $A$ yields an equivalent model by setting $\tilde{\mathcal W}(f,A p)=\mathcal W(f,p)$ and
+$\tilde{\mathcal D}(A q)=\hat{\mathcal D}(q)$, which keeps convexity. Empirically, a linear regression fitted on training trajectories
+maps one model's variables onto the other's with about 5% median error on unseen test trajectories.</p>
+
+<figure>
+<svg id="ncl-ident" viewBox="0 0 760 240" role="img" aria-label="Schematic: internal variable from model 2 differs from model 1 but overlays it after a linear transform"></svg>
+<figcaption>Schematic (illustrative curves, not data): model 2's internal variable looks unrelated to model 1's, but a fixed linear map lines them up.</figcaption>
+</figure>
+
+<figure>
+<svg id="ncl-fit" viewBox="0 0 760 240" role="img" aria-label="Median linear-fit error between two models' internal variables is lowest, about 5 percent, at six variables"></svg>
+<figcaption>Median error of the linear fit between two independently trained models, by number of internal variables. Dashed line: 5%.</figcaption>
+</figure>
+<p class="note">Bar heights are approximate medians read from Fig. 13 of the paper. The fit is tightest at $n=6$, the same size picked for accuracy.</p>
+
+<!-- ============================================================ -->
+<h2>Speed</h2>
+<figure>
+<svg id="ncl-cost" viewBox="0 0 760 150" role="img" aria-label="Cost per time step: crystal plasticity 0.24 seconds, neural network 0.005 seconds"></svg>
+<figcaption>Wall-clock cost per time-step. The trained model also batches well: 4000 trajectories of 200 steps take about 8 s on one GPU.</figcaption>
+</figure>
+<p>Training is a one-off cost of about 24 hours for the coupled energy/dissipation networks and 1 hour for the volumetric
+network, on a single NVIDIA P100.</p>
+
+<!-- ============================================================ -->
+<h2>Takeaways</h2>
+<ul>
+  <li>Building a learned constitutive law from an <strong>energy and a dissipation potential</strong> gives thermodynamic consistency, stability and objectivity by construction, at 2% error.</li>
+  <li>Splitting the energy into <strong>volumetric and deviatoric parts</strong> cut the error from 15% to 2%.</li>
+  <li>Learned internal variables are <strong>identifiable up to a linear transform</strong>. This is proven under assumptions and also seen in experiments beyond them.</li>
+  <li>Open directions: microstructure-dependent and non-local potentials, and whether the map $A$ splits into blocks that line up with isotropic and kinematic hardening.</li>
+</ul>
+
+</div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var C = { ink:'#1f2933', muted:'#5b6672', line:'#d9dee4', blue:'#2b6cb0', orange:'#dd6b20', green:'#2f855a', soft:'#f5f7fa' };
+  function el(parent, tag, attrs, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined) e.textContent = text;
+    parent.appendChild(e); return e;
+  }
+  function scale(d0, d1, r0, r1) { return function (v) { return r0 + (v - d0) / (d1 - d0) * (r1 - r0); }; }
+
+  // Generic vertical bar chart
+  function bars(id, labels, values, opt) {
+    var svg = document.getElementById(id); if (!svg) return;
+    var W = 760, H = opt.h || 260, L = 60, R = 20, T = 20, B = 40;
+    var y = scale(0, opt.max, H - B, T);
+    var bw = (W - L - R) / labels.length;
+    opt.ticks.forEach(function (t) {
+      el(svg, 'line', { x1:L, x2:W-R, y1:y(t), y2:y(t), stroke:C.line });
+      el(svg, 'text', { x:L-8, y:y(t)+4, 'text-anchor':'end', 'font-size':12, fill:C.muted }, t + '%');
+    });
+    labels.forEach(function (lab, i) {
+      var x = L + i * bw + bw * 0.18, w = bw * 0.64, v = values[i];
+      var hi = opt.highlight === i;
+      el(svg, 'rect', { x:x, y:y(v), width:w, height:(H-B)-y(v), rx:3, fill: hi ? C.blue : '#a3bfe0' });
+      el(svg, 'text', { x:x+w/2, y:y(v)-6, 'text-anchor':'middle', 'font-size':12, fill: hi ? C.blue : C.muted,
+                        'font-weight': hi ? 600 : 400 }, (opt.prefix || '') + v + '%');
+      el(svg, 'text', { x:x+w/2, y:H-B+18, 'text-anchor':'middle', 'font-size':13, fill:C.ink }, lab);
+    });
+    if (opt.ref !== undefined)
+      el(svg, 'line', { x1:L, x2:W-R, y1:y(opt.ref), y2:y(opt.ref), stroke:C.orange, 'stroke-dasharray':'6 4', 'stroke-width':1.5 });
+    if (opt.xlabel) el(svg, 'text', { x:(L+W-R)/2, y:H-4, 'text-anchor':'middle', 'font-size':12, fill:C.muted }, opt.xlabel);
+  }
+
+  // Generic line plot
+  function plot(id, fn, x0, x1, ymax, opt) {
+    var svg = document.getElementById(id); if (!svg) return;
+    var W = 360, H = 240, L = 40, R = 12, T = 14, B = 34;
+    var sx = scale(x0, x1, L, W - R), sy = scale(0, ymax, H - B, T);
+    if (opt.band) el(svg, 'rect', { x:sx(opt.band[0]), y:T, width:sx(opt.band[1])-sx(opt.band[0]), height:H-B-T, fill:'#e6f0fa' });
+    if (opt.band) el(svg, 'text', { x:(sx(opt.band[0])+sx(opt.band[1]))/2, y:T+14, 'text-anchor':'middle', 'font-size':11, fill:C.blue }, 'data range');
+    el(svg, 'line', { x1:L, x2:W-R, y1:H-B, y2:H-B, stroke:C.muted });
+    el(svg, 'line', { x1:L, x2:L, y1:T, y2:H-B, stroke:C.muted });
+    opt.xt.forEach(function (t) { el(svg, 'text', { x:sx(t), y:H-B+16, 'text-anchor':'middle', 'font-size':11, fill:C.muted }, t); });
+    el(svg, 'text', { x:(L+W-R)/2, y:H-2, 'text-anchor':'middle', 'font-size':12, fill:C.muted }, opt.xlabel);
+    var d = '', N = 300, started = false;
+    for (var i = 0; i <= N; i++) {
+      var x = x0 + (x1 - x0) * i / N, v = fn(x);
+      if (!isFinite(v) || v > ymax) { started = false; continue; }
+      d += (started ? 'L' : 'M') + sx(x).toFixed(1) + ',' + sy(v).toFixed(1);
+      started = true;
+    }
+    el(svg, 'path', { d:d, fill:'none', stroke:C.orange, 'stroke-width':2.5 });
+  }
+
+  // Decomposition comparison (horizontal bars)
+  (function () {
+    var svg = document.getElementById('ncl-decomp'); if (!svg) return;
+    var sx = scale(0, 16, 230, 720);
+    [['Single energy network', 15, '#a3bfe0'], ['Volumetric + deviatoric split', 2, C.blue]].forEach(function (r, i) {
+      var y = 40 + i * 75;
+      el(svg, 'text', { x:220, y:y+28, 'text-anchor':'end', 'font-size':14, fill:C.ink }, r[0]);
+      el(svg, 'rect', { x:230, y:y, width:sx(r[1])-230, height:44, rx:4, fill:r[2] });
+      el(svg, 'text', { x:sx(r[1])+8, y:y+29, 'font-size':16, 'font-weight':600, fill:r[2] === C.blue ? C.blue : C.muted }, r[1] + '%');
+    });
+  })();
+
+  plot('ncl-g1', function (x) { var xm = 0.6; return xm * xm / x; }, 0.02, 4, 6,
+       { xt:[0,1,2,3,4], xlabel:'det F', band:[0.75, 1.35] });
+  plot('ncl-g2', function (x) { var xM = 2, a = 4, n = 2;
+         return xM / (a * n) * Math.log(1 + Math.exp(a * (Math.pow(Math.abs(x / xM), n) - 1))); }, -5, 5, 6,
+       { xt:[-4,-2,0,2,4], xlabel:'strain measure x', band:[-2, 2] });
+
+  bars('ncl-nvars', ['1','2','3','4','5','6','7','8','9','10','11','12'],
+       [11, 10, 8, 6, 3.5, 2, 2, 2, 2, 2, 2, 2],
+       { max:12, ticks:[0, 4, 8, 12], ref:2, highlight:5, xlabel:'number of internal variables n', prefix:'~' });
+
+  bars('ncl-fit', ['5','6','7','8','9','10','11'],
+       [38, 5.5, 10, 6, 8.5, 15, 10],
+       { h:240, max:40, ticks:[0, 10, 20, 30, 40], ref:5, highlight:1, xlabel:'number of internal variables n', prefix:'~' });
+
+  // Identifiability schematic
+  (function () {
+    var svg = document.getElementById('ncl-ident'); if (!svg) return;
+    var W = 760, H = 240, L = 30, R = 160, T = 20, B = 30;
+    var sx = scale(0, 1, L, W - R), sy = scale(-0.35, 0.35, H - B, T);
+    function xi(t) { return 0.22 * Math.sin(3.2 * t) - 0.08 * t + 0.04 * Math.sin(11 * t); }
+    function eta(t) { return -1.1 * xi(t) + 0.06 * Math.sin(2 * t) * 0; } // linear image of xi
+    function path(f, dx) { var d = ''; for (var i = 0; i <= 200; i++) { var t = i / 200;
+      d += (i ? 'L' : 'M') + sx(t).toFixed(1) + ',' + sy(f(t) + (dx || 0)).toFixed(1); } return d; }
+    el(svg, 'line', { x1:L, x2:W-R, y1:sy(0), y2:sy(0), stroke:C.line });
+    el(svg, 'text', { x:(L+W-R)/2, y:H-6, 'text-anchor':'middle', 'font-size':12, fill:C.muted }, 'time');
+    el(svg, 'path', { d:path(xi), fill:'none', stroke:C.blue, 'stroke-width':2.5 });
+    el(svg, 'path', { d:path(eta), fill:'none', stroke:C.green, 'stroke-width':2.5 });
+    el(svg, 'path', { d:path(function (t) { return eta(t) / -1.1; }), fill:'none', stroke:C.orange, 'stroke-width':2.5, 'stroke-dasharray':'7 5' });
+    [['model 1:  ξ', C.blue, false], ['model 2:  η', C.green, false], ['A⁻¹η  (after linear fit)', C.orange, true]].forEach(function (r, i) {
+      var y = 50 + i * 30;
+      el(svg, 'line', { x1:W-R+12, x2:W-R+36, y1:y, y2:y, stroke:r[1], 'stroke-width':2.5, 'stroke-dasharray': r[2] ? '7 5' : 'none' });
+      el(svg, 'text', { x:W-R+42, y:y+4, 'font-size':12, fill:C.ink }, r[0]);
+    });
+  })();
+
+  // Cost per time-step
+  (function () {
+    var svg = document.getElementById('ncl-cost'); if (!svg) return;
+    var sx = scale(0, 0.25, 230, 690);
+    [['Crystal plasticity (data generation)', 0.24, '#a3bfe0', '0.24 s'], ['Trained neural network', 0.005, C.blue, '0.005 s']].forEach(function (r, i) {
+      var y = 20 + i * 60;
+      el(svg, 'text', { x:220, y:y+25, 'text-anchor':'end', 'font-size':13, fill:C.ink }, r[0]);
+      el(svg, 'rect', { x:230, y:y, width:Math.max(sx(r[1])-230, 3), height:38, rx:4, fill:r[2] });
+      el(svg, 'text', { x:Math.max(sx(r[1]), 233)+8, y:y+25, 'font-size':14, 'font-weight':600, fill:r[2] === C.blue ? C.blue : C.muted }, r[3]);
+    });
+  })();
+})();
+</script>

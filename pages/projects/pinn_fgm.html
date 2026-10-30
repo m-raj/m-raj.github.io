@@ -1,0 +1,375 @@
+---
+layout: default
+title: "PINNs for graded materials"
+exclude: true
+permalink: /projects/pinn-thermomechanics/
+---
+<link rel="stylesheet" href="/assets/css/project_detail.css">
+<script>window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
+<style>
+  .proj .lab { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:700px){ .proj .lab { grid-template-columns:1fr; } }
+  .proj .lab svg { width:100%; height:auto; background:var(--soft); border-radius:8px; }
+  .proj .readout { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin:.8rem 0; }
+  .proj .readout div { background:var(--soft); border-radius:8px; padding:8px 12px; font-size:.85rem; color:var(--muted); }
+  .proj .readout b { display:block; font-size:1.1rem; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .proj td.neg { color:var(--red); font-weight:600; }
+  .proj td.lo { color:var(--orange); }
+  .proj .tablewrap { overflow-x:auto; }
+</style>
+
+<div class="proj">
+
+<h1>Physics-informed neural networks for thermo-mechanics of functionally graded materials</h1>
+<p class="byline">Mayank Raj, Pramod Kumbhar, Ratna Kumar Annabattula · IIT Madras<br>
+<em>arXiv preprint</em> 2111.10751 (2022)</p>
+<p class="links">
+  <a href="https://arxiv.org/abs/2111.10751" target="_blank" rel="noopener">Paper (arXiv)</a>
+</p>
+
+<p>A physics-informed neural network (PINN) solves a differential equation <strong>without any training data</strong>.
+The network takes a point's coordinates and outputs its displacement or temperature. Training minimises the system's
+<em>energy</em>: strain energy plus thermal energy, minus the work done by loads. Whatever minimises that energy is the
+solution. This project used PINNs, for the first time, on <strong>coupled thermo-mechanics</strong> in
+<strong>functionally graded materials</strong>, whose stiffness and conductivity vary smoothly through the part. It also
+asked what PINNs get right and what they get wrong.</p>
+
+<div class="stats">
+  <div class="stat"><b>&gt;99%</b><span>R² on displacement and temperature in every test case</span></div>
+  <div class="stat"><b>8</b><span>benchmark problems, 1D and 2D, checked against exact or Abaqus FE solutions</span></div>
+  <div class="stat"><b>&lt;0</b><span>R² that some stress components can get, even when displacement is near-perfect</span></div>
+  <div class="stat"><b>0</b><span>meshes or labelled data needed, only a cloud of points</span></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>How an energy-based PINN works</h2>
+<figure>
+<svg viewBox="0 0 760 220" role="img" aria-label="Pipeline: point coordinates feed a neural network; its output is wrapped to satisfy fixed boundary values; automatic differentiation gives strains and temperature gradients; these form an energy loss that is minimised">
+  <defs><marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5b6672"/></marker></defs>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" text-anchor="middle" font-size="12">
+    <g transform="translate(10,40)"><rect width="120" height="110" rx="10" fill="#f5f7fa" stroke="#d9dee4"/>
+      <g fill="#2b6cb0"><circle cx="25" cy="25" r="3"/><circle cx="55" cy="20" r="3"/><circle cx="90" cy="30" r="3"/><circle cx="35" cy="55" r="3"/><circle cx="70" cy="50" r="3"/><circle cx="100" cy="65" r="3"/><circle cx="20" cy="85" r="3"/><circle cx="60" cy="85" r="3"/><circle cx="95" cy="90" r="3"/></g>
+      <text x="60" y="132" fill="#1f2933">points x (no mesh)</text></g>
+    <line x1="134" y1="95" x2="168" y2="95" stroke="#5b6672" stroke-width="2" marker-end="url(#pa)"/>
+    <g transform="translate(172,40)"><rect width="120" height="110" rx="10" fill="#ebf8ff" stroke="#2b6cb0"/>
+      <text x="60" y="50" font-size="15" font-weight="600" fill="#2b6cb0">network ṽ(x)</text>
+      <text x="60" y="72" fill="#5b6672">tanh / elu layers</text>
+      <text x="60" y="132" fill="#1f2933">free-form guess</text></g>
+    <line x1="296" y1="95" x2="330" y2="95" stroke="#5b6672" stroke-width="2" marker-end="url(#pa)"/>
+    <g transform="translate(334,40)"><rect width="130" height="110" rx="10" fill="#fffaf0" stroke="#dd6b20"/>
+      <text x="65" y="45" font-size="13" font-weight="600" fill="#dd6b20">ũ = x + x(1−x) ṽ</text>
+      <text x="65" y="70" fill="#5b6672">fixed values hold</text><text x="65" y="86" fill="#5b6672">by construction</text>
+      <text x="65" y="132" fill="#1f2933">boundary wrapper</text></g>
+    <line x1="468" y1="95" x2="502" y2="95" stroke="#5b6672" stroke-width="2" marker-end="url(#pa)"/>
+    <g transform="translate(506,40)"><rect width="110" height="110" rx="10" fill="#f5f7fa" stroke="#d9dee4"/>
+      <text x="55" y="50" font-size="14" fill="#1f2933">∂ũ/∂x, ∇T̃</text><text x="55" y="74" fill="#5b6672">auto-diff</text>
+      <text x="55" y="132" fill="#1f2933">strains</text></g>
+    <line x1="620" y1="95" x2="654" y2="95" stroke="#5b6672" stroke-width="2" marker-end="url(#pa)"/>
+    <g transform="translate(658,40)"><rect width="92" height="110" rx="10" fill="#f0fff4" stroke="#2f855a"/>
+      <text x="46" y="45" font-size="13" font-weight="600" fill="#2f855a">Loss =</text><text x="46" y="64" fill="#2f855a">W_int − W_ext</text>
+      <text x="46" y="88" fill="#5b6672">minimise</text>
+      <text x="46" y="132" fill="#1f2933">energy</text></g>
+    <path d="M704,155 C704,200 232,200 232,154" fill="none" stroke="#5b6672" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#pa)"/>
+    <text x="468" y="212" fill="#5b6672">backpropagate, update weights (Adam)</text>
+  </g>
+</svg>
+<figcaption>The loss is the discretised energy functional. Fixed displacements and temperatures are built into the output, while applied forces enter as work in the loss.</figcaption>
+</figure>
+<div class="eq">$$\mathcal L=\sum_i w_i\Big[\tfrac12\,\varepsilon^{el}:\mathbf C(\mathbf x_i):\varepsilon^{el}+\tfrac12\,k(\mathbf x_i)\,\nabla T\cdot\nabla T\Big]\;-\;\sum_{\Gamma_t} w'_i\,\mathbf t\cdot\mathbf u,\qquad \varepsilon^{el}=\varepsilon-\alpha\,\Delta T\,\mathbf I$$</div>
+
+<!-- ============================================================ -->
+<h2>Try it: train a PINN in your browser</h2>
+<p>This is a real 1→5→5→1 tanh network, the same size as in the paper, training on 50 points in a graded bar with
+stiffness <em>E</em>(<em>x</em>) = 1/(1+<em>x</em>). Pick a problem and press Train. The left plot shows the loss heading to the
+bar's true minimum energy (dashed). The right plot shows the network's displacement closing in on the exact solution.</p>
+
+<div class="controls" role="group" aria-label="Problem">
+  <button type="button" data-p="dir" aria-pressed="true">Fixed ends</button>
+  <button type="button" data-p="neu" aria-pressed="false">Pulled by a force</button>
+  <button type="button" data-p="bf" aria-pressed="false">Body force</button>
+  <button type="button" data-p="bad" aria-pressed="false">Bad boundary wrapper</button>
+</div>
+<p id="pinn-desc" style="font-size:.9rem;color:var(--muted);margin:.2rem 0 .6rem"></p>
+<div class="controls">
+  <button type="button" id="pinn-go">▶ Train</button>
+  <button type="button" id="pinn-reset">↺ Reset weights</button>
+</div>
+<div class="lab">
+  <svg id="pinn-loss" viewBox="0 0 360 240" role="img" aria-label="Training loss versus step"></svg>
+  <svg id="pinn-u" viewBox="0 0 360 240" role="img" aria-label="Predicted displacement versus exact solution"></svg>
+</div>
+<div class="readout" id="pinn-read"></div>
+<p class="note">Gradients with respect to <em>x</em> are exact (forward-mode). Gradients with respect to the weights use finite differences, which is enough for a 46-parameter net. The paper used TensorFlow's automatic differentiation.</p>
+
+<p>Two lessons from the paper show up here. First, the loss is a <strong>physical quantity</strong>: it settles at the
+true minimum energy, which is negative when the load does more work than the bar stores. Second, the
+<strong>boundary wrapper matters</strong>. The "bad" wrapper ũ = x² + x²(1−x²)ṽ does hold u(0)=0 and u(1)=1, but it also forces
+the slope at x = 0 to be zero, which the true solution doesn't have. The loss stalls above the true minimum and the curve misses near the fixed end.</p>
+
+<!-- ============================================================ -->
+<h2>The 2D benchmarks</h2>
+<div class="cards">
+  <div class="card2"><h4>Kirsch's problem</h4><p>Plate with a hole under tension, a classic stress-concentration case. Quarter model with non-uniform points around the hole; checked against the exact solution.</p></div>
+  <div class="card2"><h4>Graded plate: force / displacement</h4><p>A 1×3 plate with E = 1/(1+y), pulled at the top either by a force or by a set displacement; compared with Abaqus.</p></div>
+  <div class="card2"><h4>Graded plate: thermo-mechanics</h4><p>Same plate, also heated at the top, with k = 10/(1+y). One network outputs u₁, u₂ and T together.</p></div>
+</div>
+
+<figure>
+<svg viewBox="0 0 760 300" role="img" aria-label="Kirsch quarter-plate domain with symmetry rollers and traction, and graded plate domain with colour gradient for stiffness, fixed bottom and loaded top">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#2c5282"/><stop offset="1" stop-color="#bee3f8"/></linearGradient>
+    <marker id="pt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#dd6b20"/></marker>
+  </defs>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#1f2933">
+    <!-- Kirsch -->
+    <path d="M80,40 H280 V240 H120 A40,40 0 0 0 80,200 Z" fill="#ebf8ff" stroke="#2b6cb0" stroke-width="1.5"/>
+    <g fill="none" stroke="#5b6672"><circle cx="72" cy="60" r="6"/><circle cx="72" cy="100" r="6"/><circle cx="72" cy="140" r="6"/><circle cx="72" cy="180" r="6"/>
+      <circle cx="150" cy="248" r="6"/><circle cx="200" cy="248" r="6"/><circle cx="250" cy="248" r="6"/></g>
+    <g stroke="#dd6b20" stroke-width="2" marker-end="url(#pt)"><line x1="284" y1="70" x2="314" y2="70"/><line x1="284" y1="120" x2="314" y2="120"/><line x1="284" y1="170" x2="314" y2="170"/><line x1="284" y1="220" x2="314" y2="220"/></g>
+    <text x="324" y="148" fill="#dd6b20">t = 1</text>
+    <text x="180" y="280" text-anchor="middle">Kirsch: quarter plate, hole r = 0.1</text>
+    <text x="96" y="232" font-size="11" fill="#5b6672">hole</text>
+    <!-- Graded plate -->
+    <rect x="520" y="30" width="80" height="220" fill="url(#grad)" stroke="#2b6cb0"/>
+    <g stroke="#5b6672"><line x1="510" y1="254" x2="610" y2="254"/><path d="M515,254 l-6,8 M535,254 l-6,8 M555,254 l-6,8 M575,254 l-6,8 M595,254 l-6,8"/></g>
+    <g stroke="#dd6b20" stroke-width="2" marker-end="url(#pt)"><line x1="535" y1="26" x2="535" y2="4"/><line x1="560" y1="26" x2="560" y2="4"/><line x1="585" y1="26" x2="585" y2="4"/></g>
+    <text x="620" y="22" fill="#dd6b20">u₂ = 1 or t₂ = 1, T = 1</text>
+    <text x="620" y="258" fill="#5b6672">u = 0, T = 0</text>
+    <text x="620" y="140">E = 1/(1+y)</text><text x="620" y="158">k = 10/(1+y)</text>
+    <text x="560" y="280" text-anchor="middle">Graded plate, L × 3L</text>
+    <text x="508" y="40" text-anchor="end" font-size="11" fill="#5b6672">soft</text><text x="508" y="246" text-anchor="end" font-size="11" fill="#5b6672">stiff</text>
+  </g>
+</svg>
+<figcaption>Redrawn from Figs. 9, 14, 18 and 22. Darker blue means stiffer and more conductive.</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2>The catch: great displacements, shaky stresses</h2>
+<p>Displacement and temperature come out at R² above 99% in every case. Stresses come from <em>derivatives</em> of the
+network output, and they are much less reliable: some drop to 70–90%, and a few go below zero.</p>
+<figure>
+<svg id="pinn-r2" viewBox="0 0 760 330" role="img" aria-label="R squared by problem: displacement and temperature above 99 percent; stresses much lower, some negative"></svg>
+<figcaption>R² for primary variables (u, T) and stresses, for each problem (Table 3). Bars at the floor mark R² &lt; 0.</figcaption>
+</figure>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th style="text-align:left">Problem</th><th>u₁</th><th>u₂</th><th>T</th><th>σ₁₁</th><th>σ₁₂</th><th>σ₂₂</th></tr></thead>
+  <tbody>
+    <tr><td style="text-align:left">1D graded, fixed ends</td><td>99.94</td><td>–</td><td>–</td><td class="neg">&lt;0</td><td>–</td><td>–</td></tr>
+    <tr><td style="text-align:left">1D graded, force</td><td>99.99</td><td>–</td><td>–</td><td class="neg">&lt;0</td><td>–</td><td>–</td></tr>
+    <tr><td style="text-align:left">1D body force</td><td>99.98</td><td>–</td><td>–</td><td>99.65</td><td>–</td><td>–</td></tr>
+    <tr><td style="text-align:left">1D thermo-elastic</td><td>99.99</td><td>–</td><td>99.94</td><td class="neg">&lt;0</td><td>–</td><td>–</td></tr>
+    <tr><td style="text-align:left">Kirsch</td><td>99.89</td><td>99.02</td><td>–</td><td>97.52</td><td>99.29</td><td class="lo">89.75</td></tr>
+    <tr><td style="text-align:left">2D graded, force</td><td>99.83</td><td>99.99</td><td>–</td><td class="lo">83.01</td><td class="lo">80.00</td><td class="neg">&lt;0</td></tr>
+    <tr><td style="text-align:left">2D graded, displacement</td><td>99.92</td><td>99.99</td><td>–</td><td class="lo">81.78</td><td>90.81</td><td class="neg">&lt;0</td></tr>
+    <tr><td style="text-align:left">2D thermo-elastic</td><td>99.99</td><td>99.99</td><td>99.97</td><td class="lo">88.84</td><td class="lo">70.91</td><td class="lo">73.92</td></tr>
+  </tbody>
+</table>
+</div>
+<p>A negative R² can look worse than it is. When the true stress is nearly constant, as σ₂₂ is in a plate under uniform
+tension or σ₁₁ is in a 1D bar, its variance is close to zero. R² divides the error by that variance, so even a tiny error
+gives a large negative score. The paper flags this: R² is not always the right measure for PINN accuracy.</p>
+<figure>
+<svg id="pinn-r2demo" viewBox="0 0 760 200" role="img" aria-label="Two panels: varied true field with small error gives high R squared; nearly constant field with same error gives negative R squared"></svg>
+<figcaption>Illustration (not paper data): the same small wiggle in a prediction scores well against a varied field and badly against a flat one.</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2>Takeaways</h2>
+<ul>
+  <li>Energy-based PINNs solve <strong>coupled thermo-elastic problems with graded properties</strong> without meshes or data, reaching R² &gt; 99% for displacement and temperature.</li>
+  <li>The loss converges to the system's <strong>true minimum energy</strong>, which is useful as a convergence check.</li>
+  <li>Fixed-value wrappers must not <strong>secretly constrain slopes</strong>. Reaction work is not subtracted when fixed values are built in.</li>
+  <li><strong>Accurate displacements do not guarantee accurate stresses.</strong> Derivative quantities are the weak spot, and R² can mislead for nearly uniform fields.</li>
+  <li>Open questions: how to design architectures and activations, consistent stopping rules, transfer learning, and distributed PINNs.</li>
+</ul>
+
+</div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var C = { ink:'#1f2933', muted:'#5b6672', line:'#d9dee4', blue:'#2b6cb0', light:'#a3bfe0', orange:'#dd6b20', green:'#2f855a', red:'#c53030' };
+  function el(p, t, a, x) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); if (x !== undefined) e.textContent = x; p.appendChild(e); return e; }
+  function sc(d0, d1, r0, r1) { return function (v) { return r0 + (v - d0) / (d1 - d0) * (r1 - r0); }; }
+
+  /* ---------------- In-browser PINN ---------------- */
+  var N = 50, X = []; for (var i = 0; i < N; i++) X.push((i + 0.5) / N);
+  var PROBS = {
+    dir: { desc:'Ends held at u(0)=0 and u(1)=1. Loss = strain energy only. Exact: u = (x²+2x)/3, min energy 1/3.',
+           exact:function (x) { return (x * x + 2 * x) / 3; }, emin:1 / 3, yr:[0, 1.6] },
+    neu: { desc:'Left end fixed, unit force pulling the right end. Loss = strain energy − work. Exact: u = (2x+x²)/2, min energy −0.75.',
+           exact:function (x) { return (2 * x + x * x) / 2; }, emin:-0.75, yr:[0, 1.6] },
+    bf:  { desc:'Uniform bar (E = 1) with a unit body force and a unit end force. Exact: u = (4x−x²)/2, min energy −7/6.',
+           exact:function (x) { return (4 * x - x * x) / 2; }, emin:-7 / 6, yr:[0, 1.6] },
+    bad: { desc:'Same as "Fixed ends", but wrapped as ũ = x² + x²(1−x²)ṽ, which secretly forces the slope at x=0 to zero.',
+           exact:function (x) { return (x * x + 2 * x) / 3; }, emin:1 / 3, yr:[0, 1.6] }
+  };
+  var prob = 'dir', P, M, V, t, hist, running = false, steps = 0, MAXS = 3000;
+
+  function rng(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+  function init() {
+    var r = rng(42), n = 46; P = new Float64Array(n); M = new Float64Array(n); V = new Float64Array(n);
+    for (var k = 0; k < n; k++) { var u1 = r() || 1e-9, u2 = r(); P[k] = 0.5 * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2); }
+    t = 0; steps = 0; hist = [];
+  }
+  // returns [v, dv/dx]
+  function net(p, x) {
+    var h1 = [], d1 = [], k, j, v = p[45], dv = 0;
+    for (k = 0; k < 5; k++) { var a = Math.tanh(p[k] * x + p[5 + k]); h1.push(a); d1.push((1 - a * a) * p[k]); }
+    for (j = 0; j < 5; j++) {
+      var z = p[35 + j], dz = 0;
+      for (k = 0; k < 5; k++) { z += p[10 + j * 5 + k] * h1[k]; dz += p[10 + j * 5 + k] * d1[k]; }
+      var h = Math.tanh(z); v += p[40 + j] * h; dv += p[40 + j] * (1 - h * h) * dz;
+    }
+    return [v, dv];
+  }
+  function uAt(p, x) {
+    var r = net(p, x), v = r[0], dv = r[1];
+    if (prob === 'dir') return [x + x * (1 - x) * v, 1 + (1 - 2 * x) * v + x * (1 - x) * dv];
+    if (prob === 'bad') return [x * x + x * x * (1 - x * x) * v, 2 * x + (2 * x - 4 * x * x * x) * v + x * x * (1 - x * x) * dv];
+    return [x * v, v + x * dv];
+  }
+  function loss(p) {
+    var L = 0, i, r;
+    for (i = 0; i < N; i++) {
+      var x = X[i]; r = uAt(p, x);
+      if (prob === 'bf') L += 0.5 * r[1] * r[1] - r[0];
+      else L += r[1] * r[1] / (2 * (1 + x));
+    }
+    L /= N;
+    if (prob === 'neu' || prob === 'bf') L -= uAt(p, 1)[0];
+    return L;
+  }
+  function step() {
+    var g = new Float64Array(46), h = 1e-5, k;
+    for (k = 0; k < 46; k++) { var o = P[k]; P[k] = o + h; var a = loss(P); P[k] = o - h; var b = loss(P); P[k] = o; g[k] = (a - b) / (2 * h); }
+    t++; var lr = 0.02, b1 = 0.9, b2 = 0.999;
+    for (k = 0; k < 46; k++) { M[k] = b1 * M[k] + (1 - b1) * g[k]; V[k] = b2 * V[k] + (1 - b2) * g[k] * g[k];
+      P[k] -= lr * (M[k] / (1 - Math.pow(b1, t))) / (Math.sqrt(V[k] / (1 - Math.pow(b2, t))) + 1e-8); }
+    steps++; hist.push(loss(P));
+  }
+  function r2() { var ex = PROBS[prob].exact, m = 0, ss = 0, sr = 0, i;
+    for (i = 0; i < N; i++) m += ex(X[i]); m /= N;
+    for (i = 0; i < N; i++) { var y = ex(X[i]); ss += (y - m) * (y - m); sr += Math.pow(y - uAt(P, X[i])[0], 2); }
+    return 1 - sr / ss; }
+
+  function draw() {
+    var pr = PROBS[prob];
+    // loss plot
+    var s = document.getElementById('pinn-loss'); s.innerHTML = '';
+    var W = 360, H = 240, L = 48, R = 10, T = 14, B = 32;
+    var lo = pr.emin, hi = hist.length ? Math.max(pr.emin + 0.05, Math.min(hist[0], pr.emin + 1.5)) : pr.emin + 1;
+    lo = Math.min(lo, hist.length ? Math.min.apply(null, hist) : lo) - 0.02 * (hi - lo);
+    var x = sc(0, MAXS, L, W - R), y = sc(lo, hi, H - B, T);
+    [lo, (lo + hi) / 2, hi].forEach(function (v) { el(s, 'line', { x1:L, x2:W - R, y1:y(v), y2:y(v), stroke:C.line });
+      el(s, 'text', { x:L - 4, y:y(v) + 4, 'text-anchor':'end', 'font-size':10, fill:C.muted }, v.toFixed(2)); });
+    el(s, 'line', { x1:L, x2:W - R, y1:y(pr.emin), y2:y(pr.emin), stroke:C.orange, 'stroke-dasharray':'6 4', 'stroke-width':1.5 });
+    el(s, 'text', { x:W - R - 4, y:y(pr.emin) - 5, 'text-anchor':'end', 'font-size':10, fill:C.orange }, 'true min energy ' + pr.emin.toFixed(3));
+    if (hist.length) { var d = ''; var stride = Math.max(1, Math.floor(hist.length / 300));
+      for (var i = 0; i < hist.length; i += stride) d += (i ? 'L' : 'M') + x(i).toFixed(1) + ',' + y(Math.min(hi, hist[i])).toFixed(1);
+      el(s, 'path', { d:d, fill:'none', stroke:C.blue, 'stroke-width':2 }); }
+    el(s, 'text', { x:(L + W - R) / 2, y:H - 8, 'text-anchor':'middle', 'font-size':11, fill:C.muted }, 'training step');
+    el(s, 'text', { x:L, y:11, 'font-size':11, fill:C.muted }, 'loss (energy)');
+    // u plot
+    s = document.getElementById('pinn-u'); s.innerHTML = '';
+    var ux = sc(0, 1, L, W - R), uy = sc(pr.yr[0], pr.yr[1], H - B, T);
+    [0, 0.5, 1, 1.5].forEach(function (v) { el(s, 'line', { x1:L, x2:W - R, y1:uy(v), y2:uy(v), stroke:C.line });
+      el(s, 'text', { x:L - 4, y:uy(v) + 4, 'text-anchor':'end', 'font-size':10, fill:C.muted }, v); });
+    [0, 0.5, 1].forEach(function (v) { el(s, 'text', { x:ux(v), y:H - B + 14, 'text-anchor':'middle', 'font-size':10, fill:C.muted }, v); });
+    X.forEach(function (xx, i) { if (i % 2 === 0) el(s, 'circle', { cx:ux(xx), cy:uy(pr.exact(xx)), r:2.6, fill:C.red }); });
+    var dd = ''; for (var j = 0; j <= 100; j++) { var xx = j / 100; dd += (j ? 'L' : 'M') + ux(xx).toFixed(1) + ',' + uy(uAt(P, xx)[0]).toFixed(1); }
+    el(s, 'path', { d:dd, fill:'none', stroke:C.blue, 'stroke-width':2.2, 'stroke-dasharray':'6 3' });
+    el(s, 'circle', { cx:L + 10, cy:12, r:3, fill:C.red }); el(s, 'text', { x:L + 18, y:16, 'font-size':10, fill:C.ink }, 'exact');
+    el(s, 'line', { x1:L + 60, x2:L + 80, y1:12, y2:12, stroke:C.blue, 'stroke-width':2.2, 'stroke-dasharray':'6 3' });
+    el(s, 'text', { x:L + 84, y:16, 'font-size':10, fill:C.ink }, 'PINN');
+    el(s, 'text', { x:(L + W - R) / 2, y:H - 4, 'text-anchor':'middle', 'font-size':11, fill:C.muted }, 'x');
+    document.getElementById('pinn-read').innerHTML =
+      '<div>Step<b>' + steps + ' / ' + MAXS + '</b></div>' +
+      '<div>Loss<b>' + loss(P).toFixed(4) + '</b></div>' +
+      '<div>True minimum<b>' + pr.emin.toFixed(4) + '</b></div>' +
+      '<div>R² of u<b>' + (r2() * 100).toFixed(2) + '%</b></div>';
+  }
+  function loop() {
+    if (!running) return;
+    for (var k = 0; k < 15 && steps < MAXS; k++) step();
+    draw();
+    if (steps >= MAXS) { running = false; goBtn.textContent = '▶ Train'; return; }
+    requestAnimationFrame(loop);
+  }
+  var goBtn = document.getElementById('pinn-go');
+  goBtn.addEventListener('click', function () {
+    if (steps >= MAXS) { init(); }
+    running = !running; goBtn.textContent = running ? '⏸ Pause' : '▶ Train';
+    if (running) requestAnimationFrame(loop);
+  });
+  document.getElementById('pinn-reset').addEventListener('click', function () { running = false; goBtn.textContent = '▶ Train'; init(); draw(); });
+  document.querySelectorAll('button[data-p]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      prob = b.dataset.p; running = false; goBtn.textContent = '▶ Train';
+      document.querySelectorAll('button[data-p]').forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
+      document.getElementById('pinn-desc').textContent = PROBS[prob].desc; init(); draw();
+    });
+  });
+  document.getElementById('pinn-desc').textContent = PROBS[prob].desc;
+  init(); draw();
+
+  /* ---------------- R² chart (Table 3) ---------------- */
+  (function () {
+    var svg = document.getElementById('pinn-r2'), W = 760, H = 330, L = 170, R = 20, T = 34, B = 30;
+    var rows = [
+      ['1D graded, fixed ends', 99.94, null, null, -1],
+      ['1D graded, force', 99.99, null, null, -1],
+      ['1D body force', 99.98, null, null, 99.65],
+      ['1D thermo-elastic', 99.99, null, 99.94, -1],
+      ['Kirsch', 99.89, 99.02, null, [97.52, 99.29, 89.75]],
+      ['2D graded, force', 99.83, 99.99, null, [83.01, 80, -1]],
+      ['2D graded, displacement', 99.92, 99.99, null, [81.78, 90.81, -1]],
+      ['2D thermo-elastic', 99.99, 99.99, 99.97, [88.84, 70.91, 73.92]]
+    ];
+    var x = sc(60, 100, L, W - R), rh = (H - T - B) / rows.length;
+    [60, 70, 80, 90, 100].forEach(function (v) { el(svg, 'line', { x1:x(v), x2:x(v), y1:T, y2:H - B, stroke:C.line });
+      el(svg, 'text', { x:x(v), y:H - B + 16, 'text-anchor':'middle', 'font-size':11, fill:C.muted }, v + '%'); });
+    rows.forEach(function (r, i) {
+      var cy = T + i * rh + rh / 2;
+      el(svg, 'text', { x:L - 8, y:cy + 4, 'text-anchor':'end', 'font-size':12, fill:C.ink }, r[0]);
+      el(svg, 'line', { x1:L, x2:W - R, y1:cy, y2:cy, stroke:'#edf2f7' });
+      var prim = [r[1], r[2], r[3]].filter(function (v) { return v !== null; });
+      prim.forEach(function (v) { el(svg, 'circle', { cx:x(v), cy:cy, r:6, fill:C.blue }); });
+      var st = Array.isArray(r[4]) ? r[4] : [r[4]];
+      st.forEach(function (v) {
+        if (v < 0) { el(svg, 'path', { d:'M' + (x(60) + 2) + ',' + (cy - 6) + ' l10,6 l-10,6 z', fill:C.red }); }
+        else el(svg, 'rect', { x:x(v) - 5, y:cy - 5, width:10, height:10, fill:C.orange, transform:'rotate(45 ' + x(v) + ' ' + cy + ')' });
+      });
+    });
+    el(svg, 'circle', { cx:L + 10, cy:14, r:6, fill:C.blue }); el(svg, 'text', { x:L + 22, y:18, 'font-size':12, fill:C.ink }, 'displacement / temperature');
+    el(svg, 'rect', { x:L + 215, y:9, width:10, height:10, fill:C.orange, transform:'rotate(45 ' + (L + 220) + ' 14)' });
+    el(svg, 'text', { x:L + 232, y:18, 'font-size':12, fill:C.ink }, 'stress component');
+    el(svg, 'path', { d:'M' + (L + 365) + ',8 l10,6 l-10,6 z', fill:C.red }); el(svg, 'text', { x:L + 382, y:18, 'font-size':12, fill:C.ink }, 'stress with R² < 0 (off scale)');
+  })();
+
+  /* ---------------- R² illustration ---------------- */
+  (function () {
+    var svg = document.getElementById('pinn-r2demo');
+    function panel(ox, f, title) {
+      var W = 360, H = 170, L = 14, x = sc(0, 1, ox + L, ox + W - 10), y = sc(-0.2, 1.2, H - 10, 34);
+      var wig = function (s) { return 0.04 * Math.sin(18 * s); }, d1 = '', d2 = '', m = 0, ss = 0, sr = 0, n = 100, i, s;
+      for (i = 0; i <= n; i++) { s = i / n; m += f(s); } m /= (n + 1);
+      for (i = 0; i <= n; i++) { s = i / n; var yv = f(s), p = yv + wig(s);
+        d1 += (i ? 'L' : 'M') + x(s) + ',' + y(yv); d2 += (i ? 'L' : 'M') + x(s) + ',' + y(p);
+        ss += (yv - m) * (yv - m); sr += wig(s) * wig(s); }
+      el(svg, 'rect', { x:ox, y:0, width:W, height:H + 20, rx:8, fill:'#f5f7fa' });
+      el(svg, 'path', { d:d1, fill:'none', stroke:C.ink, 'stroke-width':2 });
+      el(svg, 'path', { d:d2, fill:'none', stroke:C.blue, 'stroke-width':2, 'stroke-dasharray':'5 3' });
+      var r = 1 - sr / Math.max(ss, 1e-12);
+      el(svg, 'text', { x:ox + 14, y:22, 'font-size':13, fill:C.ink }, title);
+      el(svg, 'text', { x:ox + W - 14, y:22, 'text-anchor':'end', 'font-size':14, 'font-weight':600, fill: r < 0 ? C.red : C.green },
+         'R² = ' + (r < -9.99 ? '< −10' : r.toFixed(2)));
+    }
+    panel(0, function (s) { return s; }, 'varied true field');
+    panel(390, function (s) { return 0.5 + 0.005 * s; }, 'nearly constant true field');
+  })();
+})();
+</script>
