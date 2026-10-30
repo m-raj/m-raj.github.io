@@ -5,7 +5,25 @@ order: 5
 permalink: /cv/
 ---
 
-<h1>Curriculum Vitae</h1>
+<style>
+  .cv-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .cv-update-btn {
+    padding: 3px 12px;
+    border: 1px solid #2b6cb0;
+    border-radius: 999px;
+    color: #2b6cb0;
+    font-size: .8rem;
+    text-decoration: none;
+  }
+  .cv-update-btn:hover { background: #ebf4ff; text-decoration: none; }
+</style>
+
+<div class="cv-head">
+  <h1>Curriculum Vitae</h1>
+  {% comment %}Opens the "Update CV" workflow on GitHub; only the repo owner can click "Run workflow" there{% endcomment %}
+  <a class="cv-update-btn" href="https://github.com/m-raj/m-raj.github.io/actions/workflows/update-cv.yml"
+     target="_blank" rel="noopener" title="Pull the latest CV from the CV repo (owner only)">Update CV</a>
+</div>
 
 {% comment %}The ?v= changes on every site build so browsers fetch the latest PDF instead of a cached one{% endcomment %}
 {% assign cv_version = site.time | date: "%s" %}

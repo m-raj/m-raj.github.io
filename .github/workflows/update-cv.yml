@@ -1,0 +1,43 @@
+name: Update CV
+
+# Pulls the latest compiled CV from the public m-raj/CV repo.
+# No secrets needed because that repo is public.
+on:
+  schedule:
+    - cron: "0 0 1 * *"  # 1st of every month, 00:00 UTC
+  workflow_dispatch:        # "Run workflow" button in the Actions tab
+
+permissions:
+  contents: write  # commit the new cv.pdf
+  pages: write     # request a Pages rebuild
+
+jobs:
+  update-cv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download latest CV
+        run: curl -fsSL -o cv.pdf https://raw.githubusercontent.com/m-raj/CV/main/Mayank_Raj_Academic_CV.pdf
+
+      - name: Commit if changed
+        id: commit
+        run: |
+          git add cv.pdf
+          if git diff --cached --quiet; then
+            echo "CV unchanged"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Update CV PDF"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Make sure the site rebuilds, even if the bot's push doesn't trigger it
+      - name: Rebuild site
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Pages rebuild request failed; the push may still trigger a build"
