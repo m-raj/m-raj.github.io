@@ -12,7 +12,14 @@
   .proj .stat b { display:block; font-size:1.7rem; color:var(--blue); line-height:1.2; font-variant-numeric:tabular-nums; }
   .proj .stat span { font-size:.85rem; color:var(--muted); }
   .proj figure { margin:1.4rem 0; }
-  .proj figure svg { width:100%; height:auto; display:block; }
+  .proj figure > svg { width:100%; height:auto; display:block; }  /* direct child only, so MathJax SVGs in captions keep their size */
+  /* Figures taken from the papers (assets/img/projects/<project>/figNN.png, NN = paper figure number). */
+  .proj figure.paper img { display:block; width:100%; height:auto; margin:0 auto; background:#fff; }
+  .proj figure.paper.narrow img { max-width:460px; }
+  .proj figure.paper.medium img { max-width:620px; }
+  .proj .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; align-items:end; }
+  @media (max-width:700px){ .proj .grid4 { grid-template-columns:1fr 1fr; } }
+  .proj figcaption .src { font-weight:600; color:var(--ink); }
   .proj figcaption { font-size:.85rem; color:var(--muted); margin-top:.4rem; }
   .proj .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:1.2rem 0; }
   .proj .card2 { border:1px solid var(--line); border-radius:10px; padding:14px 16px; }

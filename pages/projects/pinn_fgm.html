@@ -2,11 +2,10 @@
 layout: default
 title: "PINNs for graded materials"
 exclude: true
+math: true
 permalink: /projects/pinn-thermomechanics/
 ---
 <link rel="stylesheet" href="/assets/css/project_detail.css">
-<script>window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
 <style>
   .proj .lab { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
   @media (max-width:700px){ .proj .lab { grid-template-columns:1fr; } }
@@ -44,37 +43,9 @@ asked what PINNs get right and what they get wrong.</p>
 
 <!-- ============================================================ -->
 <h2>How an energy-based PINN works</h2>
-<figure>
-<svg viewBox="0 0 760 220" role="img" aria-label="Pipeline: point coordinates feed a neural network; its output is wrapped to satisfy fixed boundary values; automatic differentiation gives strains and temperature gradients; these form an energy loss that is minimised">
-  <defs><marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5b6672"/></marker></defs>
-  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" text-anchor="middle" font-size="12">
-    <g transform="translate(10,40)"><rect width="120" height="110" rx="10" fill="#f5f7fa" stroke="#d9dee4"/>
-      <g fill="#2b6cb0"><circle cx="25" cy="25" r="3"/><circle cx="55" cy="20" r="3"/><circle cx="90" cy="30" r="3"/><circle cx="35" cy="55" r="3"/><circle cx="70" cy="50" r="3"/><circle cx="100" cy="65" r="3"/><circle cx="20" cy="85" r="3"/><circle cx="60" cy="85" r="3"/><circle cx="95" cy="90" r="3"/></g>
-      <text x="60" y="132" fill="#1f2933">points x (no mesh)</text></g>
-    <line x1="134" y1="95" x2="168" y2="95" stroke="#5b6672" stroke-width="2" marker-end="url(#pa)"/>
-    <g transform="translate(172,40)"><rect width="120" height="110" rx="10" fill="#ebf8ff" stroke="#2b6cb0"/>
-      <text x="60" y="50" font-size="15" font-weight="600" fill="#2b6cb0">network ṽ(x)</text>
-      <text x="60" y="72" fill="#5b6672">tanh / elu layers</text>
-      <text x="60" y="132" fill="#1f2933">free-form guess</text></g>
-    <line x1="296" y1="95" x2="330" y2="95" stroke="#5b6672" stroke-width="2" marker-end="url(#pa)"/>
-    <g transform="translate(334,40)"><rect width="130" height="110" rx="10" fill="#fffaf0" stroke="#dd6b20"/>
-      <text x="65" y="45" font-size="13" font-weight="600" fill="#dd6b20">ũ = x + x(1−x) ṽ</text>
-      <text x="65" y="70" fill="#5b6672">fixed values hold</text><text x="65" y="86" fill="#5b6672">by construction</text>
-      <text x="65" y="132" fill="#1f2933">boundary wrapper</text></g>
-    <line x1="468" y1="95" x2="502" y2="95" stroke="#5b6672" stroke-width="2" marker-end="url(#pa)"/>
-    <g transform="translate(506,40)"><rect width="110" height="110" rx="10" fill="#f5f7fa" stroke="#d9dee4"/>
-      <text x="55" y="50" font-size="14" fill="#1f2933">∂ũ/∂x, ∇T̃</text><text x="55" y="74" fill="#5b6672">auto-diff</text>
-      <text x="55" y="132" fill="#1f2933">strains</text></g>
-    <line x1="620" y1="95" x2="654" y2="95" stroke="#5b6672" stroke-width="2" marker-end="url(#pa)"/>
-    <g transform="translate(658,40)"><rect width="92" height="110" rx="10" fill="#f0fff4" stroke="#2f855a"/>
-      <text x="46" y="45" font-size="13" font-weight="600" fill="#2f855a">Loss =</text><text x="46" y="64" fill="#2f855a">W_int − W_ext</text>
-      <text x="46" y="88" fill="#5b6672">minimise</text>
-      <text x="46" y="132" fill="#1f2933">energy</text></g>
-    <path d="M704,155 C704,200 232,200 232,154" fill="none" stroke="#5b6672" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#pa)"/>
-    <text x="468" y="212" fill="#5b6672">backpropagate, update weights (Adam)</text>
-  </g>
-</svg>
-<figcaption>The loss is the discretised energy functional. Fixed displacements and temperatures are built into the output, while applied forces enter as work in the loss.</figcaption>
+<figure class="paper">
+<img src="/assets/img/projects/pinn-thermomechanics/fig04.png" alt="Flowchart of the PINN framework from discretising the domain to predicting the fields" loading="lazy">
+<figcaption><span class="src">Fig. 4.</span> The PINN workflow. The loss is the discretised energy functional: fixed displacements and temperatures are built into the output, while applied forces enter as work in the loss.</figcaption>
 </figure>
 <div class="eq">$$\mathcal L=\sum_i w_i\Big[\tfrac12\,\varepsilon^{el}:\mathbf C(\mathbf x_i):\varepsilon^{el}+\tfrac12\,k(\mathbf x_i)\,\nabla T\cdot\nabla T\Big]\;-\;\sum_{\Gamma_t} w'_i\,\mathbf t\cdot\mathbf u,\qquad \varepsilon^{el}=\varepsilon-\alpha\,\Delta T\,\mathbf I$$</div>
 
@@ -107,6 +78,11 @@ true minimum energy, which is negative when the load does more work than the bar
 <strong>boundary wrapper matters</strong>. The "bad" wrapper ũ = x² + x²(1−x²)ṽ does hold u(0)=0 and u(1)=1, but it also forces
 the slope at x = 0 to be zero, which the true solution doesn't have. The loss stalls above the true minimum and the curve misses near the fixed end.</p>
 
+<figure class="paper medium">
+<img src="/assets/img/projects/pinn-thermomechanics/fig05.png" alt="Loss decline and predicted versus analytical displacement for a 1D graded bar" loading="lazy">
+<figcaption><span class="src">Fig. 5.</span> The paper's version of the "Fixed ends" case: loss during training (left) and predicted versus analytical displacement at the end of training (right) for the 1D bar under displacement-controlled loading.</figcaption>
+</figure>
+
 <!-- ============================================================ -->
 <h2>The 2D benchmarks</h2>
 <div class="cards">
@@ -115,34 +91,24 @@ the slope at x = 0 to be zero, which the true solution doesn't have. The loss st
   <div class="card2"><h4>Graded plate: thermo-mechanics</h4><p>Same plate, also heated at the top, with k = 10/(1+y). One network outputs u₁, u₂ and T together.</p></div>
 </div>
 
-<figure>
-<svg viewBox="0 0 760 300" role="img" aria-label="Kirsch quarter-plate domain with symmetry rollers and traction, and graded plate domain with colour gradient for stiffness, fixed bottom and loaded top">
-  <defs>
-    <linearGradient id="grad" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#2c5282"/><stop offset="1" stop-color="#bee3f8"/></linearGradient>
-    <marker id="pt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#dd6b20"/></marker>
-  </defs>
-  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="12" fill="#1f2933">
-    <!-- Kirsch -->
-    <path d="M80,40 H280 V240 H120 A40,40 0 0 0 80,200 Z" fill="#ebf8ff" stroke="#2b6cb0" stroke-width="1.5"/>
-    <g fill="none" stroke="#5b6672"><circle cx="72" cy="60" r="6"/><circle cx="72" cy="100" r="6"/><circle cx="72" cy="140" r="6"/><circle cx="72" cy="180" r="6"/>
-      <circle cx="150" cy="248" r="6"/><circle cx="200" cy="248" r="6"/><circle cx="250" cy="248" r="6"/></g>
-    <g stroke="#dd6b20" stroke-width="2" marker-end="url(#pt)"><line x1="284" y1="70" x2="314" y2="70"/><line x1="284" y1="120" x2="314" y2="120"/><line x1="284" y1="170" x2="314" y2="170"/><line x1="284" y1="220" x2="314" y2="220"/></g>
-    <text x="324" y="148" fill="#dd6b20">t = 1</text>
-    <text x="180" y="280" text-anchor="middle">Kirsch: quarter plate, hole r = 0.1</text>
-    <text x="96" y="232" font-size="11" fill="#5b6672">hole</text>
-    <!-- Graded plate -->
-    <rect x="520" y="30" width="80" height="220" fill="url(#grad)" stroke="#2b6cb0"/>
-    <g stroke="#5b6672"><line x1="510" y1="254" x2="610" y2="254"/><path d="M515,254 l-6,8 M535,254 l-6,8 M555,254 l-6,8 M575,254 l-6,8 M595,254 l-6,8"/></g>
-    <g stroke="#dd6b20" stroke-width="2" marker-end="url(#pt)"><line x1="535" y1="26" x2="535" y2="4"/><line x1="560" y1="26" x2="560" y2="4"/><line x1="585" y1="26" x2="585" y2="4"/></g>
-    <text x="620" y="22" fill="#dd6b20">u₂ = 1 or t₂ = 1, T = 1</text>
-    <text x="620" y="258" fill="#5b6672">u = 0, T = 0</text>
-    <text x="620" y="140">E = 1/(1+y)</text><text x="620" y="158">k = 10/(1+y)</text>
-    <text x="560" y="280" text-anchor="middle">Graded plate, L × 3L</text>
-    <text x="508" y="40" text-anchor="end" font-size="11" fill="#5b6672">soft</text><text x="508" y="246" text-anchor="end" font-size="11" fill="#5b6672">stiff</text>
-  </g>
-</svg>
-<figcaption>Redrawn from Figs. 9, 14, 18 and 22. Darker blue means stiffer and more conductive.</figcaption>
+<div class="grid4">
+<figure class="paper">
+<img src="/assets/img/projects/pinn-thermomechanics/fig09.png" alt="Kirsch's problem: quarter plate with a hole, symmetry rollers and unit traction" loading="lazy">
+<figcaption><span class="src">Fig. 9.</span> Kirsch's problem: a quarter plate with a hole under unit tension.</figcaption>
 </figure>
+<figure class="paper">
+<img src="/assets/img/projects/pinn-thermomechanics/fig14.png" alt="Graded plate fixed at the bottom and pulled by a force at the top" loading="lazy">
+<figcaption><span class="src">Fig. 14.</span> Graded plate pulled by a force at the top.</figcaption>
+</figure>
+<figure class="paper">
+<img src="/assets/img/projects/pinn-thermomechanics/fig18.png" alt="Graded plate fixed at the bottom with a set displacement at the top" loading="lazy">
+<figcaption><span class="src">Fig. 18.</span> The same plate with a set displacement at the top.</figcaption>
+</figure>
+<figure class="paper">
+<img src="/assets/img/projects/pinn-thermomechanics/fig22.png" alt="Graded plate under displacement and temperature at the top, with graded stiffness and conductivity" loading="lazy">
+<figcaption><span class="src">Fig. 22.</span> Thermo-mechanics: displacement and temperature set at the top, stiffness and conductivity graded along the height.</figcaption>
+</figure>
+</div>
 
 <!-- ============================================================ -->
 <h2>The catch: great displacements, shaky stresses</h2>
@@ -152,6 +118,17 @@ network output, and they are much less reliable: some drop to 70–90%, and a fe
 <svg id="pinn-r2" viewBox="0 0 760 330" role="img" aria-label="R squared by problem: displacement and temperature above 99 percent; stresses much lower, some negative"></svg>
 <figcaption>R² for primary variables (u, T) and stresses, for each problem (Table 3). Bars at the floor mark R² &lt; 0.</figcaption>
 </figure>
+
+<div class="two">
+<figure class="paper">
+<img src="/assets/img/projects/pinn-thermomechanics/fig24.png" alt="Displacement and temperature fields from the PINN and Abaqus with their differences" loading="lazy">
+<figcaption><span class="src">Fig. 24.</span> Thermo-elastic plate: displacements and temperature. PINN and Abaqus agree to about 10⁻³.</figcaption>
+</figure>
+<figure class="paper">
+<img src="/assets/img/projects/pinn-thermomechanics/fig25.png" alt="Stress fields from the PINN and Abaqus with their differences" loading="lazy">
+<figcaption><span class="src">Fig. 25.</span> The same problem: stresses, computed from derivatives of the network output, show larger errors.</figcaption>
+</figure>
+</div>
 
 <div class="tablewrap">
 <table>

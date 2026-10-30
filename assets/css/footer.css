@@ -1,12 +1,22 @@
 /* Footer: one line with name, email and profile links (wraps only on narrow screens). */
+/* Fixed to the bottom of the window; it does not move when the page scrolls. */
 .site-footer {
-  margin-top: 60px;
-  padding: 18px 0;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  margin: 0;
+  padding: 12px 0;
   border-top: 1px solid #e8e8e8;
   background: #f7f8fa;
+  box-shadow: 0 -4px 12px -8px rgba(0, 0, 0, .15);
   font-size: 14px;
   color: #828282;
 }
+
+/* Keep the end of the page clear of the fixed footer (the script below sets the exact height). */
+body { padding-bottom: 64px; }
 
 .footer-row {
   list-style: none;

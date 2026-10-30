@@ -2,12 +2,9 @@
 layout: default
 title: "Learning history-dependent constitutive laws"
 exclude: true
+math: true
 permalink: /projects/neural-constitutive-laws/
 ---
-<script>
-  window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
 
 <link rel="stylesheet" href="/assets/css/project_detail.css">
 
@@ -97,6 +94,11 @@ paths $\mathbf F(t)$, and the Taylor-averaged stress $\mathbf P^\dagger(t)$ is r
 <figcaption>The learned law replaces the expensive fine-scale computation at every material point of a macroscale simulation.</figcaption>
 </figure>
 
+<figure class="paper">
+<img src="/assets/img/projects/neural-constitutive-laws/fig03.png" alt="Six components of a sampled deformation gradient and the resulting stress over time" loading="lazy">
+<figcaption><span class="src">Fig. 3.</span> One training sample: the six components of the (symmetric) deformation gradient $\mathbf F - \mathbf I$ (left) and the resulting stress $\mathbf P^\dagger$ (right).</figcaption>
+</figure>
+
 <!-- ============================================================ -->
 <h2>The model: energy + dissipation, with internal variables</h2>
 <p>History is carried by a vector of internal variables $\xi(t)\in\mathbb R^n$ that the network discovers on its own: nobody
@@ -151,9 +153,14 @@ $\mathcal W = \mathcal W_H(\det\mathbf F) + \mathcal W_V(\mathbf K,\xi)$ with $\
 turned out to matter a lot: the diagonal stress components are much larger than the shear ones, and learning them together
 makes training hard.</p>
 
-<figure>
-<svg id="ncl-decomp" viewBox="0 0 760 200" role="img" aria-label="Median relative stress error: 15 percent without the energy split, 2 percent with it"></svg>
-<figcaption>Relative error in predicted stress with and without the hydrostatic–deviatoric split of the energy.</figcaption>
+<figure class="paper">
+<img src="/assets/img/projects/neural-constitutive-laws/fig06.png" alt="Box plots of relative stress error without and with the hydrostatic-deviatoric split of the energy" loading="lazy">
+<figcaption><span class="src">Fig. 6.</span> Relative error in stress. Left: one energy network for everything. Right: the hydrostatic–deviatoric split, which brings the error in $\mathbf P$ down to about 2%.</figcaption>
+</figure>
+
+<figure class="paper">
+<img src="/assets/img/projects/neural-constitutive-laws/fig07.png" alt="True and predicted stress components over time for a median-error test sample" loading="lazy">
+<figcaption><span class="src">Fig. 7.</span> True (red) and predicted (blue dashed) stress for a test sample with the median error of 2%. Top row: diagonal components; bottom row: off-diagonal.</figcaption>
 </figure>
 
 <!-- ============================================================ -->
@@ -173,26 +180,29 @@ makes training hard.</p>
 crushed to a point with finite force. Two hand-built functions fix this: they are nearly flat over the data and grow
 polynomially outside it.</p>
 
-<div class="two">
-<figure>
-<svg id="ncl-g1" viewBox="0 0 360 240" role="img" aria-label="Growth function G1 blows up as x approaches zero"></svg>
-<figcaption>$\mathcal G_1(x)=\frac{1}{n_1}\frac{x_m^{n_1+1}}{x^{n_1}}$ added to the volumetric energy: infinite energy to compress volume to zero ($x_m=0.6,\ n_1=1$).</figcaption>
+<figure class="paper narrow">
+<img src="/assets/img/projects/neural-constitutive-laws/fig01.png" alt="Growth function G1 for two parameter values, blowing up as x approaches zero" loading="lazy">
+<figcaption><span class="src">Fig. 1.</span> $\mathcal G_1(x)=\frac{1}{n_1}\frac{x_m^{n_1+1}}{x^{n_1}}$, added to the volumetric energy: infinite energy to compress the volume to zero.</figcaption>
 </figure>
-<figure>
-<svg id="ncl-g2" viewBox="0 0 360 240" role="img" aria-label="Growth function G2 is flat inside the data range and grows outside"></svg>
-<figcaption>$\mathcal G_2(x)=\frac{x_M}{\alpha n_2}\log\!\big(1+e^{\alpha(|x/x_M|^{n_2}-1)}\big)$: flat inside the data, polynomial growth beyond ($x_M=2,\ \alpha=4,\ n_2=2$).</figcaption>
+
+<figure class="paper">
+<img src="/assets/img/projects/neural-constitutive-laws/fig02.png" alt="Growth function G2 for several parameter values: flat inside the data, growing outside" loading="lazy">
+<figcaption><span class="src">Fig. 2.</span> $\mathcal G_2(x)=\frac{x_M}{\alpha n_2}\log\!\big(1+e^{\alpha(|x/x_M|^{n_2}-1)}\big)$: flat inside the data range, polynomial growth beyond it. $x_M$ sets the flat width, $n_2$ the growth order, $\alpha$ the sharpness of the transition.</figcaption>
 </figure>
-</div>
+
+<figure class="paper">
+<img src="/assets/img/projects/neural-constitutive-laws/fig09.png" alt="Hydrostatic stress versus det F with and without the growth term, over a histogram of the data" loading="lazy">
+<figcaption><span class="src">Fig. 9.</span> Hydrostatic stress versus $\det\mathbf F$. Without growth (blue) the stress stays finite as $\det\mathbf F\to0$, so the material could be crushed to a point; with growth (orange dashed) it diverges. Green: where the training data lie.</figcaption>
+</figure>
 
 <!-- ============================================================ -->
 <h2>How many internal variables?</h2>
 <p>The number of internal variables is not known in advance. Models with $n=1\ldots12$ were trained with identical
 architecture and data. Error falls steeply up to $n=6$ and then plateaus, so six was chosen.</p>
-<figure>
-<svg id="ncl-nvars" viewBox="0 0 760 260" role="img" aria-label="Median stress error versus number of internal variables, dropping from about 11 percent at one variable to about 2 percent at six and staying flat after"></svg>
-<figcaption>Median relative error in stress (test set) versus the number of internal variables. Dashed line: 2%.</figcaption>
+<figure class="paper">
+<img src="/assets/img/projects/neural-constitutive-laws/fig05.png" alt="Box plots of relative stress error for 1 to 12 internal variables, reaching about 2 percent at six" loading="lazy">
+<figcaption><span class="src">Fig. 5.</span> Relative error in stress (train and test) versus the number of internal variables. Dashed line: 2%.</figcaption>
 </figure>
-<p class="note">Bar heights are approximate medians read from Fig. 5 of the paper.</p>
 
 <!-- ============================================================ -->
 <h2>Identifiability: internal variables are unique up to a linear map</h2>
@@ -204,16 +214,15 @@ models with identical stress–strain response have internal variables related b
 $\tilde{\mathcal D}(A q)=\hat{\mathcal D}(q)$, which keeps convexity. Empirically, a linear regression fitted on training trajectories
 maps one model's variables onto the other's with about 5% median error on unseen test trajectories.</p>
 
-<figure>
-<svg id="ncl-ident" viewBox="0 0 760 240" role="img" aria-label="Schematic: internal variable from model 2 differs from model 1 but overlays it after a linear transform"></svg>
-<figcaption>Schematic (illustrative curves, not data): model 2's internal variable looks unrelated to model 1's, but a fixed linear map lines them up.</figcaption>
+<figure class="paper">
+<img src="/assets/img/projects/neural-constitutive-laws/fig12.png" alt="Six internal variables of two independently trained models, and model 2 mapped onto model 1 by a linear fit" loading="lazy">
+<figcaption><span class="src">Fig. 12.</span> The six internal variables of two independently trained models. Model 1 (red) and model 2 (green) look unrelated, but one fixed linear map takes model 2 onto model 1 (blue dashed).</figcaption>
 </figure>
 
-<figure>
-<svg id="ncl-fit" viewBox="0 0 760 240" role="img" aria-label="Median linear-fit error between two models' internal variables is lowest, about 5 percent, at six variables"></svg>
-<figcaption>Median error of the linear fit between two independently trained models, by number of internal variables. Dashed line: 5%.</figcaption>
+<figure class="paper">
+<img src="/assets/img/projects/neural-constitutive-laws/fig13.png" alt="Box plots of linear-fit error between two models' internal variables for 5 to 11 variables, lowest at six" loading="lazy">
+<figcaption><span class="src">Fig. 13.</span> Error of the linear fit between two independently trained models, by number of internal variables. Dashed line: 5%. The fit is tightest at $n=6$, the same size picked for accuracy.</figcaption>
 </figure>
-<p class="note">Bar heights are approximate medians read from Fig. 13 of the paper. The fit is tightest at $n=6$, the same size picked for accuracy.</p>
 
 <!-- ============================================================ -->
 <h2>Speed</h2>
@@ -238,7 +247,7 @@ network, on a single NVIDIA P100.</p>
 <script>
 (function () {
   var NS = 'http://www.w3.org/2000/svg';
-  var C = { ink:'#1f2933', muted:'#5b6672', line:'#d9dee4', blue:'#2b6cb0', orange:'#dd6b20', green:'#2f855a', soft:'#f5f7fa' };
+  var C = { ink:'#1f2933', muted:'#5b6672', blue:'#2b6cb0' };
   function el(parent, tag, attrs, text) {
     var e = document.createElementNS(NS, tag);
     for (var k in attrs) e.setAttribute(k, attrs[k]);
@@ -247,107 +256,14 @@ network, on a single NVIDIA P100.</p>
   }
   function scale(d0, d1, r0, r1) { return function (v) { return r0 + (v - d0) / (d1 - d0) * (r1 - r0); }; }
 
-  // Generic vertical bar chart
-  function bars(id, labels, values, opt) {
-    var svg = document.getElementById(id); if (!svg) return;
-    var W = 760, H = opt.h || 260, L = 60, R = 20, T = 20, B = 40;
-    var y = scale(0, opt.max, H - B, T);
-    var bw = (W - L - R) / labels.length;
-    opt.ticks.forEach(function (t) {
-      el(svg, 'line', { x1:L, x2:W-R, y1:y(t), y2:y(t), stroke:C.line });
-      el(svg, 'text', { x:L-8, y:y(t)+4, 'text-anchor':'end', 'font-size':12, fill:C.muted }, t + '%');
-    });
-    labels.forEach(function (lab, i) {
-      var x = L + i * bw + bw * 0.18, w = bw * 0.64, v = values[i];
-      var hi = opt.highlight === i;
-      el(svg, 'rect', { x:x, y:y(v), width:w, height:(H-B)-y(v), rx:3, fill: hi ? C.blue : '#a3bfe0' });
-      el(svg, 'text', { x:x+w/2, y:y(v)-6, 'text-anchor':'middle', 'font-size':12, fill: hi ? C.blue : C.muted,
-                        'font-weight': hi ? 600 : 400 }, (opt.prefix || '') + v + '%');
-      el(svg, 'text', { x:x+w/2, y:H-B+18, 'text-anchor':'middle', 'font-size':13, fill:C.ink }, lab);
-    });
-    if (opt.ref !== undefined)
-      el(svg, 'line', { x1:L, x2:W-R, y1:y(opt.ref), y2:y(opt.ref), stroke:C.orange, 'stroke-dasharray':'6 4', 'stroke-width':1.5 });
-    if (opt.xlabel) el(svg, 'text', { x:(L+W-R)/2, y:H-4, 'text-anchor':'middle', 'font-size':12, fill:C.muted }, opt.xlabel);
-  }
-
-  // Generic line plot
-  function plot(id, fn, x0, x1, ymax, opt) {
-    var svg = document.getElementById(id); if (!svg) return;
-    var W = 360, H = 240, L = 40, R = 12, T = 14, B = 34;
-    var sx = scale(x0, x1, L, W - R), sy = scale(0, ymax, H - B, T);
-    if (opt.band) el(svg, 'rect', { x:sx(opt.band[0]), y:T, width:sx(opt.band[1])-sx(opt.band[0]), height:H-B-T, fill:'#e6f0fa' });
-    if (opt.band) el(svg, 'text', { x:(sx(opt.band[0])+sx(opt.band[1]))/2, y:T+14, 'text-anchor':'middle', 'font-size':11, fill:C.blue }, 'data range');
-    el(svg, 'line', { x1:L, x2:W-R, y1:H-B, y2:H-B, stroke:C.muted });
-    el(svg, 'line', { x1:L, x2:L, y1:T, y2:H-B, stroke:C.muted });
-    opt.xt.forEach(function (t) { el(svg, 'text', { x:sx(t), y:H-B+16, 'text-anchor':'middle', 'font-size':11, fill:C.muted }, t); });
-    el(svg, 'text', { x:(L+W-R)/2, y:H-2, 'text-anchor':'middle', 'font-size':12, fill:C.muted }, opt.xlabel);
-    var d = '', N = 300, started = false;
-    for (var i = 0; i <= N; i++) {
-      var x = x0 + (x1 - x0) * i / N, v = fn(x);
-      if (!isFinite(v) || v > ymax) { started = false; continue; }
-      d += (started ? 'L' : 'M') + sx(x).toFixed(1) + ',' + sy(v).toFixed(1);
-      started = true;
-    }
-    el(svg, 'path', { d:d, fill:'none', stroke:C.orange, 'stroke-width':2.5 });
-  }
-
-  // Decomposition comparison (horizontal bars)
-  (function () {
-    var svg = document.getElementById('ncl-decomp'); if (!svg) return;
-    var sx = scale(0, 16, 230, 720);
-    [['Single energy network', 15, '#a3bfe0'], ['Volumetric + deviatoric split', 2, C.blue]].forEach(function (r, i) {
-      var y = 40 + i * 75;
-      el(svg, 'text', { x:220, y:y+28, 'text-anchor':'end', 'font-size':14, fill:C.ink }, r[0]);
-      el(svg, 'rect', { x:230, y:y, width:sx(r[1])-230, height:44, rx:4, fill:r[2] });
-      el(svg, 'text', { x:sx(r[1])+8, y:y+29, 'font-size':16, 'font-weight':600, fill:r[2] === C.blue ? C.blue : C.muted }, r[1] + '%');
-    });
-  })();
-
-  plot('ncl-g1', function (x) { var xm = 0.6; return xm * xm / x; }, 0.02, 4, 6,
-       { xt:[0,1,2,3,4], xlabel:'det F', band:[0.75, 1.35] });
-  plot('ncl-g2', function (x) { var xM = 2, a = 4, n = 2;
-         return xM / (a * n) * Math.log(1 + Math.exp(a * (Math.pow(Math.abs(x / xM), n) - 1))); }, -5, 5, 6,
-       { xt:[-4,-2,0,2,4], xlabel:'strain measure x', band:[-2, 2] });
-
-  bars('ncl-nvars', ['1','2','3','4','5','6','7','8','9','10','11','12'],
-       [11, 10, 8, 6, 3.5, 2, 2, 2, 2, 2, 2, 2],
-       { max:12, ticks:[0, 4, 8, 12], ref:2, highlight:5, xlabel:'number of internal variables n', prefix:'~' });
-
-  bars('ncl-fit', ['5','6','7','8','9','10','11'],
-       [38, 5.5, 10, 6, 8.5, 15, 10],
-       { h:240, max:40, ticks:[0, 10, 20, 30, 40], ref:5, highlight:1, xlabel:'number of internal variables n', prefix:'~' });
-
-  // Identifiability schematic
-  (function () {
-    var svg = document.getElementById('ncl-ident'); if (!svg) return;
-    var W = 760, H = 240, L = 30, R = 160, T = 20, B = 30;
-    var sx = scale(0, 1, L, W - R), sy = scale(-0.35, 0.35, H - B, T);
-    function xi(t) { return 0.22 * Math.sin(3.2 * t) - 0.08 * t + 0.04 * Math.sin(11 * t); }
-    function eta(t) { return -1.1 * xi(t) + 0.06 * Math.sin(2 * t) * 0; } // linear image of xi
-    function path(f, dx) { var d = ''; for (var i = 0; i <= 200; i++) { var t = i / 200;
-      d += (i ? 'L' : 'M') + sx(t).toFixed(1) + ',' + sy(f(t) + (dx || 0)).toFixed(1); } return d; }
-    el(svg, 'line', { x1:L, x2:W-R, y1:sy(0), y2:sy(0), stroke:C.line });
-    el(svg, 'text', { x:(L+W-R)/2, y:H-6, 'text-anchor':'middle', 'font-size':12, fill:C.muted }, 'time');
-    el(svg, 'path', { d:path(xi), fill:'none', stroke:C.blue, 'stroke-width':2.5 });
-    el(svg, 'path', { d:path(eta), fill:'none', stroke:C.green, 'stroke-width':2.5 });
-    el(svg, 'path', { d:path(function (t) { return eta(t) / -1.1; }), fill:'none', stroke:C.orange, 'stroke-width':2.5, 'stroke-dasharray':'7 5' });
-    [['model 1:  ξ', C.blue, false], ['model 2:  η', C.green, false], ['A⁻¹η  (after linear fit)', C.orange, true]].forEach(function (r, i) {
-      var y = 50 + i * 30;
-      el(svg, 'line', { x1:W-R+12, x2:W-R+36, y1:y, y2:y, stroke:r[1], 'stroke-width':2.5, 'stroke-dasharray': r[2] ? '7 5' : 'none' });
-      el(svg, 'text', { x:W-R+42, y:y+4, 'font-size':12, fill:C.ink }, r[0]);
-    });
-  })();
-
-  // Cost per time-step
-  (function () {
-    var svg = document.getElementById('ncl-cost'); if (!svg) return;
-    var sx = scale(0, 0.25, 230, 690);
-    [['Crystal plasticity (data generation)', 0.24, '#a3bfe0', '0.24 s'], ['Trained neural network', 0.005, C.blue, '0.005 s']].forEach(function (r, i) {
-      var y = 20 + i * 60;
-      el(svg, 'text', { x:220, y:y+25, 'text-anchor':'end', 'font-size':13, fill:C.ink }, r[0]);
-      el(svg, 'rect', { x:230, y:y, width:Math.max(sx(r[1])-230, 3), height:38, rx:4, fill:r[2] });
-      el(svg, 'text', { x:Math.max(sx(r[1]), 233)+8, y:y+25, 'font-size':14, 'font-weight':600, fill:r[2] === C.blue ? C.blue : C.muted }, r[3]);
-    });
-  })();
+  // Cost per time-step (numbers from the text of the paper, Section 4.4)
+  var svg = document.getElementById('ncl-cost'); if (!svg) return;
+  var sx = scale(0, 0.25, 230, 690);
+  [['Crystal plasticity (data generation)', 0.24, '#a3bfe0', '0.24 s'], ['Trained neural network', 0.005, C.blue, '0.005 s']].forEach(function (r, i) {
+    var y = 20 + i * 60;
+    el(svg, 'text', { x:220, y:y+25, 'text-anchor':'end', 'font-size':13, fill:C.ink }, r[0]);
+    el(svg, 'rect', { x:230, y:y, width:Math.max(sx(r[1])-230, 3), height:38, rx:4, fill:r[2] });
+    el(svg, 'text', { x:Math.max(sx(r[1]), 233)+8, y:y+25, 'font-size':14, 'font-weight':600, fill:r[2] === C.blue ? C.blue : C.muted }, r[3]);
+  });
 })();
 </script>

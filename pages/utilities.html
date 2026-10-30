@@ -1,43 +1,127 @@
 ---
-layout: default  
-title: Utilites
+layout: default
+title: Utilities
 exclude: false
 order: 1
 permalink: /utils/
 ---
-1. Matplotlib plot settings:
+<link rel="stylesheet" href="{{ '/assets/css/utilities.css' | relative_url }}">
+
+<div class="utils">
+<h1 class="page-heading">Utilities</h1>
+<p class="utils-intro">Small, reusable snippets from my research workflow. Copy them straight into your own code.</p>
+
+<!-- ============================================================
+     Each utility is one <section class="util">. Copy this block to add another.
+     The Copy / Download buttons read the code block inside the same section.
+     ============================================================ -->
+<section class="util" id="matplotlib-style">
+  <div class="util-head">
+    <div class="util-meta"><span class="lang">Python</span><span>Matplotlib</span><span class="req">Needs LaTeX</span></div>
+    <h2>Publication-quality Matplotlib style</h2>
+    <p>One <code>rcParams</code> update that makes every figure ready for a paper:</p>
+    <ul class="util-feat">
+      <li>Serif text and math typeset by LaTeX, matching the paper body</li>
+      <li>Inward ticks on all four sides, with minor ticks</li>
+      <li>Thicker lines, smaller markers and a frameless legend</li>
+    </ul>
+  </div>
+
+  <div class="util-compare">
+    <figure>
+      <img src="{{ '/assets/img/utils/plot_default.png' | relative_url }}" alt="Sample plot with Matplotlib's default style" loading="lazy">
+      <figcaption>Matplotlib default</figcaption>
+    </figure>
+    <figure class="after">
+      <img src="{{ '/assets/img/utils/plot_styled.png' | relative_url }}" alt="The same sample plot with these settings: serif LaTeX text and inward ticks on all sides" loading="lazy">
+      <figcaption>With these settings</figcaption>
+    </figure>
+  </div>
+
+  <div class="util-code" data-filename="plot_style.py">
+    <div class="util-bar">
+      <span class="util-file">plot_style.py</span>
+      <span class="util-btns">
+        <button type="button" class="util-btn" data-action="download">Download .py</button>
+        <button type="button" class="util-btn primary" data-action="copy">Copy</button>
+      </span>
+    </div>
 {% highlight python %}
-params = {'font.family': 'serif',
-          'font.sans-serif': 'Times New Roman',
-          'font.size': 14,
-          'lines.linewidth': 2,
-          'text.usetex': False,
-          'xtick.top': True,
-          'xtick.minor.visible': True,
-          'ytick.minor.visible': True,
-          'xtick.direction': 'in',
-          'xtick.major.top': True,
-          'xtick.major.bottom': True,
-          'xtick.minor.top': True,
-          'xtick.minor.bottom': True,
-          'xtick.minor.width': 1,
-          'xtick.major.width': 1,
-          'xtick.minor.size': 3, 
-          'xtick.major.size': 6,
-          'ytick.right': True,
-          'ytick.direction': 'in',
-          'ytick.major.left': True,
-          'ytick.major.right': True,
-          'ytick.minor.left': True,
-          'ytick.minor.right': True,
-          'ytick.minor.width': 1,
-          'ytick.major.width': 1,
-          'ytick.minor.size': 3,
-          'ytick.major.size': 6,
-          'legend.frameon': False,
-          'lines.markersize': 4.0,
-          'axes.formatter.use_mathtext': True,
-          'text.latex.preamble' : r'\usepackage{amsmath}',
-          'text.usetex': True}
+import matplotlib.pyplot as plt
+
+params = {
+    # Text: serif, typeset by LaTeX
+    'text.usetex': True,
+    'text.latex.preamble': r'\usepackage{amsmath}',
+    'font.family': 'serif',
+    'font.sans-serif': 'Times New Roman',
+    'font.size': 14,
+    'axes.formatter.use_mathtext': True,
+
+    # Lines, markers and legend
+    'lines.linewidth': 2,
+    'lines.markersize': 4.0,
+    'legend.frameon': False,
+
+    # x ticks: inward, top and bottom, with minor ticks
+    'xtick.direction': 'in',
+    'xtick.top': True,
+    'xtick.major.top': True,
+    'xtick.major.bottom': True,
+    'xtick.minor.visible': True,
+    'xtick.minor.top': True,
+    'xtick.minor.bottom': True,
+    'xtick.major.size': 6,
+    'xtick.major.width': 1,
+    'xtick.minor.size': 3,
+    'xtick.minor.width': 1,
+
+    # y ticks: inward, left and right, with minor ticks
+    'ytick.direction': 'in',
+    'ytick.right': True,
+    'ytick.major.left': True,
+    'ytick.major.right': True,
+    'ytick.minor.visible': True,
+    'ytick.minor.left': True,
+    'ytick.minor.right': True,
+    'ytick.major.size': 6,
+    'ytick.major.width': 1,
+    'ytick.minor.size': 3,
+    'ytick.minor.width': 1,
+}
 plt.rcParams.update(params)
 {% endhighlight %}
+  </div>
+
+  <div class="util-usage"><b>How to use:</b> run it once after importing Matplotlib, before making figures. It needs a LaTeX
+    installation; without one, set <code>'text.usetex': False</code>.</div>
+</section>
+
+<p class="utils-more">More utilities coming soon.</p>
+</div>
+
+<script>
+  // Copy / Download for each code block, using the code text on the page (one source of truth).
+  document.querySelectorAll('.util-code').forEach(function (box) {
+    var code = box.querySelector('pre code') || box.querySelector('pre');
+    var text = function () { return code.innerText.replace(/\s+$/, '') + '\n'; };
+    box.querySelectorAll('.util-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (btn.dataset.action === 'copy') {
+          var done = function (ok) {
+            btn.textContent = ok ? 'Copied' : 'Press ⌘C';
+            setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+          };
+          if (navigator.clipboard) navigator.clipboard.writeText(text()).then(function () { done(true); }, function () { done(false); });
+          else done(false);
+        } else {
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(new Blob([text()], { type: 'text/x-python' }));
+          a.download = box.dataset.filename || 'snippet.py';
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+        }
+      });
+    });
+  });
+</script>

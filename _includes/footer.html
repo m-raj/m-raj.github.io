@@ -20,3 +20,13 @@
     </ul>
   </div>
 </footer>
+<script>
+  // Pad the page by the footer's real height (it wraps to two lines on narrow screens).
+  (function () {
+    var f = document.querySelector('.site-footer');
+    if (!f) return;
+    function fit() { document.body.style.paddingBottom = (f.offsetHeight + 16) + 'px'; }
+    fit();
+    window.addEventListener('resize', fit);
+  })();
+</script>

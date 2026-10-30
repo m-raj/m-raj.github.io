@@ -1,15 +1,25 @@
-<div class="grid-container">
-    {% for item in site.data.projects %}
-    <div class="grid-item">
-    <a class="card-url" href={{item.url}}>
-    <div class="card">
-     <img src=/assets/img/{{item.image_src}} alt="Avatar">
-     <div class="container">
-       <h4><b>{{item.title}}</b></h4>
-    <p>{{item.description}}</p>
+<div class="proj-grid">
+  {%- assign featured_done = false -%}
+  {%- for item in site.data.projects %}
+  {%- assign is_featured = false -%}
+  {%- if item.featured and featured_done == false -%}{%- assign is_featured = true -%}{%- assign featured_done = true -%}{%- endif %}
+  <a class="proj-card{% if is_featured %} featured{% endif %}" href="{{ item.url | relative_url }}">
+    <div class="proj-thumb">
+      <img src="{{ '/assets/img/' | append: item.image_src | relative_url }}" alt="" loading="lazy">
     </div>
-    </a>
+    <div class="proj-body">
+      <div class="proj-meta">
+        {%- if item.venue %}<span class="proj-venue">{{ item.venue }}</span>{% endif -%}
+        {%- if item.year %}<span>{{ item.year }}</span>{% endif -%}
+        {%- if is_featured %}<span class="proj-latest">· Latest</span>{% endif -%}
+      </div>
+      <h3>{{ item.title }}</h3>
+      <p>{{ item.description }}</p>
+      {%- if item.tags %}
+      <div class="proj-tags">{% for t in item.tags %}<span>{{ t }}</span>{% endfor %}</div>
+      {%- endif %}
+      <span class="proj-more">Read project →</span>
     </div>
-    </div>
-    {% endfor %}
+  </a>
+  {%- endfor %}
 </div>

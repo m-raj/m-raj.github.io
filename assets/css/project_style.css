@@ -1,57 +1,142 @@
-.card{
-	/* Add shadows to create the "card" effect */
-	box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-	transition: 0.3s;
-	border-radius: 5%;
-	width: 90%;
-	margin-bottom: 20px;
+/* Projects page: intro + card grid. All rules are scoped so they don't touch other images or text. */
+.proj-list {
+  --ink: #1f2933; --muted: #5b6672; --line: #e3e7ec; --soft: #f5f7fa;
+  --blue: #2b6cb0; --blue-soft: #ebf4ff;
 }
 
-.card-url:hover{
-	text-decoration: none;
+.proj-intro {
+  margin: 0 0 1.6rem;
+  max-width: 620px;
+  color: var(--muted);
 }
 
-    
-/* On mouse-over, add a deeper shadow */
-.card:hover{
-	box-shadow: 5px 20px 20px 5px rgba(0, 0, 0, 0.3);
+.proj-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
-/* Add some padding inside the card container */
-.container{
-	padding: 2px 16px;
-	padding-top: 0px;
-	color: black;
+.proj-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color .2s, box-shadow .2s, transform .2s;
 }
 
-
-img {
-	width: 90%;
-	height: 100%;
-	margin-top: 5px;
-	border-radius: 5%;
-	margin-bottom: 0px;
-	margin-right: 10px;
-	margin-left: 20px;
+.proj-card:hover,
+.proj-card:focus-visible {
+  border-color: #b9cde6;
+  box-shadow: 0 10px 24px -12px rgba(31, 41, 51, .25);
+  transform: translateY(-2px);
+  text-decoration: none;
 }
 
-.tags li{
-	display: inline;
+.proj-card:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+.proj-thumb {
+  aspect-ratio: 16 / 10;
+  background: var(--soft);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Large devices (laptops/desktops, 992px and up) */
-@media only screen and (min-width: 992px) {
-.grid-container{
-	display: grid;
-	grid-template-columns: auto auto;
+.proj-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  margin: 0;
 }
 
+/* Photos/renders on white blend into the grey frame. */
+.proj-thumb img[src$=".png"],
+.proj-thumb img[src$=".jpg"] {
+  mix-blend-mode: multiply;
+  padding: 12px;
+  box-sizing: border-box;
 }
 
-@media only screen and (max-width: 600px){
-.grid-container{
-	display: grid;
-	grid-template-columns: auto;
-}
+.proj-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 16px 18px 18px;
 }
 
+.proj-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: .45rem;
+  font-size: .78rem;
+  color: var(--muted);
+}
+
+.proj-venue {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.proj-latest {
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #b7791f;
+}
+
+.proj-card h3 {
+  margin: 0 0 .45rem;
+  font-size: 1.08rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.proj-card p {
+  margin: 0 0 .9rem;
+  font-size: .92rem;
+  color: var(--muted);
+}
+
+.proj-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.proj-tags span {
+  padding: 1px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: .74rem;
+  color: var(--muted);
+}
+
+.proj-more {
+  margin-top: .9rem;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--blue);
+}
+
+/* Featured card: full width, image on the left. */
+.proj-card.featured { grid-column: 1 / -1; flex-direction: row; }
+.proj-card.featured .proj-thumb { flex: 0 0 46%; aspect-ratio: auto; border-bottom: 0; border-right: 1px solid var(--line); }
+.proj-card.featured .proj-body { padding: 22px 24px; }
+.proj-card.featured h3 { font-size: 1.3rem; }
+
+@media (max-width: 700px) {
+  .proj-grid { grid-template-columns: 1fr; }
+  .proj-card.featured { flex-direction: column; }
+  .proj-card.featured .proj-thumb { aspect-ratio: 16 / 10; border-right: 0; border-bottom: 1px solid var(--line); }
+}

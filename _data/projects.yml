@@ -1,24 +1,42 @@
+# Cards on the Projects page, in display order. The first entry with `featured: true`
+# is shown as a full-width card. `venue` and `year` appear as a badge; `tags` as small chips.
+
 - title: "Learning history-dependent constitutive laws"
   url: "/projects/neural-constitutive-laws/"
-  description: "Thermodynamically consistent, polyconvex neural-network surrogate for the viscoplastic response of a magnesium polycrystal (2% error), and proof that learned internal variables are unique up to a linear map. JMPS 2026."
-  image_src: constitutive_nn.svg
+  description: "A thermodynamically consistent, polyconvex neural-network surrogate for the viscoplastic response of a magnesium polycrystal, with 2% error, and a proof that learned internal variables are unique up to a linear map."
+  image_src: projects/neural-constitutive-laws/fig03.png
+  venue: JMPS
+  year: 2026
+  featured: true
+  tags: [Scientific ML, Constitutive modelling, Plasticity]
 
 - title: "Local strain fields in composites with UNet"
   url: "/projects/strain-field-unet/"
-  description: "A UNet that maps a whole 3D two-phase microstructure to its full strain field (R² ≈ 94% on unseen samples), with a statistical analysis of where and why it errs. IMMI 2021."
-  image_src: strain_unet.svg
+  description: "A UNet maps a whole 3D two-phase microstructure to its full strain field (R² ≈ 94% on unseen samples), with a statistical analysis of where and why it errs."
+  image_src: projects/strain-field-unet/fig06.png
+  venue: IMMI
+  year: 2021
+  tags: [Deep learning, Microstructure]
 
 - title: "PINNs for thermo-mechanics of graded materials"
   url: "/projects/pinn-thermomechanics/"
-  description: "Energy-based physics-informed neural networks solve coupled thermo-elastic problems in functionally graded materials with R² > 99% on displacement and temperature, and expose why stresses are harder. arXiv 2021."
-  image_src: pinn.svg
+  description: "Energy-based physics-informed networks solve coupled thermo-elastic problems in graded materials with R² > 99% on displacement and temperature, and show why stresses are harder."
+  image_src: projects/pinn-thermomechanics/thumb.png
+  venue: arXiv
+  year: 2021
+  tags: [PINNs, Thermo-elasticity]
 
 - title: "Mechanical properties of nacre-like composites"
   url: "/projects/nacre-composites/"
-  description: "Molecular dynamics puts the shear modulus of nacre's protein matrix at 1.25–1.45 GPa; 3D finite-element brick-and-mortar models then show 10–20% organic content maximises toughness. J. Compos. Sci. 2020."
-  image_src: nacre.svg
+  description: "Molecular dynamics puts the shear modulus of nacre's protein matrix at 1.25–1.45 GPa; 3D finite-element models then show 10–20% organic content maximises toughness."
+  image_src: projects/nacre-composites/fig02.png
+  venue: J. Compos. Sci.
+  year: 2020
+  tags: [Molecular dynamics, FEM, Bio-inspired]
 
-- title: "Design optimization of closed loop particle classifier"
+- title: "Design optimization of a closed-loop particle classifier"
   url: "/pages/projects/particle_classifier_optimisation.html"
-  description: "Machine-learning surrogates of CFD simulations used to search the design space of a closed spiral particle classifier and find Pareto-optimal designs."
+  description: "Machine-learning surrogates of CFD simulations search the design space of a closed spiral particle classifier and find Pareto-optimal designs."
   image_src: S_Geometry.png
+  venue: Project
+  tags: [Surrogate models, CFD, Optimisation]

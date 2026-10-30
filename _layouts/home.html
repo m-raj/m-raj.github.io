@@ -30,4 +30,69 @@ layout: default
 				{{ content }}
 		</div>
 	  </div>
+
+	<section class="research-theme">
+		<h2>Research theme: Homogenization</h2>
+		<p>Multiscale modelling, from microstructure to large structures: I learn fast, physically consistent surrogates for the
+		stress–strain law at each material point, so large simulations don't have to resolve every grain.</p>
+		<figure>
+			<img src="{{ '/assets/img/research_theme.png' | relative_url }}" alt="Multiscale chain from aircraft (10 m, structural FEM) to wing box (1 m, component FEM) to material point (1 mm, constitutive law) to polycrystal (10 micrometres, crystal plasticity). Deformation is passed down by localization; effective stress is passed up by homogenization." loading="lazy">
+		</figure>
+
+		<h3 class="tools-heading">Disciplines I draw on</h3>
+		<ul class="tools-grid">
+			<li class="tool">
+				<svg viewBox="0 0 96 96" role="img" aria-label="Neural network">
+					<circle cx="48" cy="48" r="44" class="ring"/>
+					<g class="edge">
+						<path d="M26 30 L48 24 M26 30 L48 48 M26 30 L48 72 M26 48 L48 24 M26 48 L48 48 M26 48 L48 72 M26 66 L48 24 M26 66 L48 48 M26 66 L48 72 M48 24 L70 48 M48 48 L70 48 M48 72 L70 48"/>
+					</g>
+					<g class="node"><circle cx="26" cy="30" r="5"/><circle cx="26" cy="48" r="5"/><circle cx="26" cy="66" r="5"/>
+						<circle cx="48" cy="24" r="5"/><circle cx="48" cy="48" r="5"/><circle cx="48" cy="72" r="5"/></g>
+					<circle cx="70" cy="48" r="6" class="accent"/>
+				</svg>
+				<h3>Machine Learning</h3>
+				<p>Neural networks as fast surrogate models</p>
+			</li>
+			<li class="tool">
+				<svg viewBox="0 0 96 96" role="img" aria-label="Polycrystal grains">
+					<clipPath id="tool-clip"><circle cx="48" cy="48" r="40"/></clipPath>
+					<g clip-path="url(#tool-clip)" class="grains">
+						<polygon points="8,8 44,8 40,36 8,42" fill="#90cdf4"/>
+						<polygon points="44,8 88,8 88,30 62,40 40,36" fill="#63b3ed"/>
+						<polygon points="8,42 40,36 50,60 30,88 8,88" fill="#4299e1"/>
+						<polygon points="40,36 62,40 72,62 50,60" fill="#bee3f8"/>
+						<polygon points="62,40 88,30 88,70 72,62" fill="#3182ce"/>
+						<polygon points="50,60 72,62 88,70 88,88 30,88" fill="#90cdf4"/>
+					</g>
+					<circle cx="48" cy="48" r="44" class="ring" style="fill:none"/>
+				</svg>
+				<h3>Material Science</h3>
+				<p>Crystal plasticity and microstructure</p>
+			</li>
+			<li class="tool">
+				<svg viewBox="0 0 96 96" role="img" aria-label="A curve and its piecewise-linear approximation">
+					<circle cx="48" cy="48" r="44" class="ring"/>
+					<path d="M18 64 C30 30, 42 30, 50 48 S68 70, 78 32" class="curve"/>
+					<polyline points="18,64 31,40 44,38 57,58 68,56 78,32" class="approx"/>
+					<g class="node"><circle cx="18" cy="64" r="3.5"/><circle cx="31" cy="40" r="3.5"/><circle cx="44" cy="38" r="3.5"/>
+						<circle cx="57" cy="58" r="3.5"/><circle cx="68" cy="56" r="3.5"/><circle cx="78" cy="32" r="3.5"/></g>
+				</svg>
+				<h3>Approximation Theory</h3>
+				<p>What networks can represent, and how well</p>
+			</li>
+			<li class="tool">
+				<svg viewBox="0 0 96 96" role="img" aria-label="Finite-element mesh with a field and the equation div sigma equals zero">
+					<defs><linearGradient id="tool-field" x1="0" y1="0" x2="1" y2="0">
+						<stop offset="0" stop-color="#f56565"/><stop offset=".5" stop-color="#ecc94b"/><stop offset="1" stop-color="#90cdf4"/></linearGradient></defs>
+					<circle cx="48" cy="48" r="44" class="ring"/>
+					<rect x="24" y="26" width="48" height="30" fill="url(#tool-field)" opacity=".85"/>
+					<path d="M24 26 h48 v30 h-48 z M36 26 v30 M48 26 v30 M60 26 v30 M24 41 h48" class="mesh"/>
+					<text x="48" y="74" text-anchor="middle" class="eq">∇·σ = 0</text>
+				</svg>
+				<h3>PDE Theory</h3>
+				<p>Well-posed boundary-value problems</p>
+			</li>
+		</ul>
+	</section>
 </div>
