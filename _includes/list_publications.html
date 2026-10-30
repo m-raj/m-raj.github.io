@@ -1,13 +1,22 @@
-<div class="main">
-    <ol reversed>
-    {% for item in site.data.publications %}
-    <li>  {% for author in item.authors %}
-	    {% if author == 'M. Raj' %} <b>{{author}}</b>,
-	    {% elsif author == 'Mayank Raj' %} <b>{{author}}</b>,
-	    {% else %} {{author}},
-	    {% endif %}	  
-	    {% endfor %} <i>{{item.title}}</i>, <a href={{item.url}}> {{item.journal}}, Volume and Pages: {{item.volume}}, {{item.pages}} ({{item.year}}) </a> </li>
-    {% endfor %}
-    </ol>
-</div>
-
+<style>
+  .pubs { list-style:none; padding:0; margin:0; }
+  .pubs li { padding:14px 0; border-bottom:1px solid #e2e8f0; line-height:1.5; }
+  .pubs .year { display:inline-block; min-width:3.2em; font-weight:600; color:#2b6cb0; }
+  .pubs .t { font-weight:600; }
+  .pubs .a, .pubs .v { color:#4a5568; font-size:.93rem; }
+  .pubs .links a { font-size:.85rem; margin-right:.8em; }
+</style>
+<ul class="pubs">
+  {% for item in site.data.publications %}
+  <li>
+    <span class="year">{{ item.year }}</span>
+    <span class="t">{% if item.url %}<a href="{{ item.url }}">{{ item.title }}</a>{% else %}{{ item.title }}{% endif %}</span><br>
+    <span class="a">{% for author in item.authors %}{% if author == 'Mayank Raj' %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% unless forloop.last %}, {% endunless %}{% endfor %}</span><br>
+    <span class="v"><i>{{ item.journal }}</i>{% if item.volume %} {{ item.volume }}{% endif %}{% if item.issue %}({{ item.issue }}){% endif %}{% if item.pages %}, {{ item.pages }}{% endif %}</span>
+    {% if item.project or item.preprint %}<br><span class="links">
+      {% if item.project %}<a href="{{ item.project }}">Project page →</a>{% endif %}
+      {% if item.preprint %}<a href="{{ item.preprint }}">Preprint</a>{% endif %}
+    </span>{% endif %}
+  </li>
+  {% endfor %}
+</ul>

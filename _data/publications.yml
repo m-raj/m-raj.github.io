@@ -1,17 +1,43 @@
+# Newest first. Source: Google Scholar profile (user=IAc4JEUAAAAJ).
+- title: "A neural-network framework to learn history-dependent constitutive laws and identifiability of internal variables"
+  authors: [Mayank Raj, Lianghao Cao, Andrew Stuart, Kaushik Bhattacharya]
+  journal: Journal of the Mechanics and Physics of Solids
+  volume: 217
+  pages: 106807
+  year: 2026
+  url: "https://doi.org/10.1016/j.jmps.2026.106807"
+  preprint: "https://arxiv.org/abs/2605.14179"
+  project: "/projects/neural-constitutive-laws/"
+
+- title: "Effective behavior of heterogeneous media governed by strain gradient elasticity"
+  authors: [Harmeet Singh, Mayank Raj, Kaushik Bhattacharya]
+  journal: Journal of the Mechanics and Physics of Solids
+  pages: 106583
+  year: 2026
+
 - title: "Physics-informed neural networks for solving thermo-mechanics problems of functionally graded material"
   authors: [Mayank Raj, Pramod Kumbhar, Ratna Kumar Annabattula]
-  journal: (Unpublished)
+  journal: arXiv preprint arXiv:2111.10751
+  year: 2021
+  url: "https://arxiv.org/abs/2111.10751"
+  project: "/projects/pinn-thermomechanics/"
 
-- title: "Estimation of local strain fields in two-phase elastic composite materials using U-Net based deep learning"
+- title: "Estimation of local strain fields in two-phase elastic composite materials using UNet-based deep learning"
   authors: [Mayank Raj, Sanket Thakre, Ratna Kumar Annabattula, Anand K Kanjarla]
   journal: Integrating Materials and Manufacturing Innovation
-  url: "https://link.springer.com/article/10.1007/s40192-021-00227-2"
-
+  volume: 10
+  issue: 3
+  pages: 444–460
+  year: 2021
+  url: "https://doi.org/10.1007/s40192-021-00227-2"
+  project: "/projects/strain-field-unet/"
 
 - title: "Mechanical properties of nacre-like composites: a bottom-up approach"
   authors: [Mayank Raj, Sandeep P. Patil, Bernd Markert]
   journal: Journal of Composites Science
   volume: 4
+  issue: 2
   pages: 35
   year: 2020
   url: "https://doi.org/10.3390/jcs4020035"
+  project: "/projects/nacre-composites/"
